@@ -1,14 +1,12 @@
 package com.iiie.server.service;
 
 import com.iiie.server.domain.CareReport;
-import com.iiie.server.domain.CareSchedule;
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.CareGiverRepository;
 import com.iiie.server.repository.CareReportRepository;
-import com.iiie.server.repository.CareScheduleRepository;
-import com.iiie.server.repository.MedicationChecklistRepository;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,66 +16,54 @@ public class CareReportService {
 
   private final CareReportRepository careReportRepository;
   private final CareGiverRepository careGiverRepository;
-  private final CareScheduleRepository careScheduleRepository;
-  private final MedicationChecklistRepository medicationChecklistRepository;
 
   public CareReportService(
-      CareReportRepository careReportRepository,
-      CareGiverRepository careGiverRepository,
-      CareScheduleRepository careScheduleRepository,
-      MedicationChecklistRepository medicationChecklistRepository) {
+      CareReportRepository careReportRepository, CareGiverRepository careGiverRepository) {
     this.careReportRepository = careReportRepository;
     this.careGiverRepository = careGiverRepository;
-    this.careScheduleRepository = careScheduleRepository;
-    this.medicationChecklistRepository = medicationChecklistRepository;
+  }
+
+  /**
+   * 오늘 날짜의 간병 보고서를 생성(초기화)합니다.
+   *
+   * <p>주어진 간병인 ID로 오늘 날짜의 간병 보고서가 이미 존재하는지 확인합니다. 존재하면 기존 보고서를 반환하고, 존재하지 않으면 새로운 보고서를 생성하여 반환합니다.
+   *
+   * @param careGiverId 간병인의 ID
+   * @return 오늘 날짜의 간병 보고서 객체
+   * @throws NotFoundException 간병인을 찾을 수 없는 경우 발생
+   */
+  @Transactional
+  public CareReport initCareReport(Long careGiverId) {
+    Caregiver caregiver =
+        careGiverRepository
+            .findById(careGiverId)
+            .orElseThrow(() -> new NotFoundException("careGiver", careGiverId, "존재하지 않는 간병인입니다."));
+
+    LocalDate today = LocalDate.now();
+    Optional<CareReport> existingReport =
+        careReportRepository.findByCaregiverIdAndCreatedAt(careGiverId, today);
+
+    if (existingReport.isPresent()) {
+      return existingReport.get();
+    }
+
+    CareReport careReport = CareReport.builder().caregiver(caregiver).specialNote("").build();
+
+    return careReportRepository.save(careReport);
+  }
+
+  public CareReport getCareReportDetail(Long careReportId) {
+    CareReport careReport =
+        careReportRepository
+            .findById(careReportId)
+            .orElseThrow(
+                () -> new NotFoundException("careReport", careReportId, "존재하지 않는 간병 보고서 입니다."));
+
+    return careReport;
   }
 
   @Transactional
-  public CareReport createCareReport(
-      Long careGiverID, String specialNote, List<String> description) {
-    Caregiver caregiver =
-        careGiverRepository
-            .findById(careGiverID)
-            .orElseThrow(() -> new NotFoundException("careReport", careGiverID, "존재하지 않는 간병인입니다."));
-
-    CareReport careReport =
-        CareReport.builder().caregiver(caregiver).specialNote(specialNote).build();
-    CareReport savedCareReport = careReportRepository.save(careReport);
-
-    createCareSchedule(description, careReport);
-    // updateMedicationCheck(caregiver.getPatient().getId());
-
-    return savedCareReport;
-  }
-
-  /*    private void updateMedicationCheck(Long patientId) {
-      // 투약 리스트가 존재하지 않으면 empty
-      // 투약 리스트가 존재하면 불러온다.
-      Optional<List<MedicationCheckList>> optionalMedicationCheckLists = medicationChecklistRepository.findAllByPatientId(
-              patientId);
-
-      if (optionalMedicationCheckLists.isEmpty()) {
-          return ;
-      }
-
-      List<MedicationCheckList> medicationCheckLists = optionalMedicationCheckLists.get();
-      // TODO: DTO로 받아와야할듯? 아닌가 좀 생각해보자.
-      물어볼거있으면 헤드셋 벗고 있어서 채팅으로 먼저 언급해주세요오
-  }*/
-
-  private void createCareSchedule(List<String> descriptions, CareReport careReport) {
-
-    List<CareSchedule> careSchedules =
-        descriptions.stream()
-            .map(
-                description -> {
-                  CareSchedule careSchedule =
-                      CareSchedule.builder().description(description).build();
-                  careSchedule.setCareReport(careReport); // 연관관계 보조 메서드 호출
-                  return careSchedule;
-                })
-            .toList();
-
-    careScheduleRepository.saveAll(careSchedules);
+  public void deleteCareReport(Long careGiverId) {
+    careReportRepository.deleteById(careGiverId);
   }
 }

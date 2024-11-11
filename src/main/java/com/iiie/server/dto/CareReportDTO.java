@@ -2,6 +2,7 @@ package com.iiie.server.dto;
 
 import com.iiie.server.dto.CareScheduleDTO.CareScheduleRequest;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,6 +25,6 @@ public class CareReportDTO {
   @Setter
   public static class CareReportRequest {
     private String specialNote;
-    private CareScheduleRequest description; // Care_Schedule
+    private List<CareScheduleRequest> careSchedules; // Care_Schedule
   }
 }

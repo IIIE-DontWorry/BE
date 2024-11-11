@@ -1,7 +1,6 @@
 package com.iiie.server.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +13,8 @@ public class CareScheduleDTO {
   @Getter
   @Setter
   public static class CareScheduleRequest {
-    private List<String> careSchedulesDescription;
+    private String description; // 일지 내용
+    private int hour;
+    private int minute;
   }
 }

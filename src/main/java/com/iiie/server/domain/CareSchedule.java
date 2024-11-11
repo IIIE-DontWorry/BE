@@ -1,6 +1,6 @@
 package com.iiie.server.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,11 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.LocalTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,23 +32,12 @@ public class CareSchedule {
   private String description;
 
   @Column(nullable = false)
-  private LocalDateTime activityAt;
+  private LocalTime activityAt;
 
-  @PrePersist
-  private void prePersist() {
-    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-    this.activityAt = nowInKorea.toLocalDateTime();
-  }
-
-  @PreUpdate
-  private void preUpdate() {
-    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-    this.activityAt = nowInKorea.toLocalDateTime();
-  }
   // ===연관관계===//
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "care_report_id", nullable = false)
-  @JsonBackReference // 순환참조 방지
+  @JsonIgnore
   private CareReport careReport;
 
   // ===연관관계보조메서드==//
