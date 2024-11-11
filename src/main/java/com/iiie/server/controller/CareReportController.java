@@ -5,6 +5,7 @@ import com.iiie.server.service.CareReportService;
 import com.iiie.server.utils.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,12 @@ public class CareReportController {
 
     return new SuccessResponse<>("간병 보고서 삭제 완료", null);
   }
-  /*
+
   @GetMapping("/{careReportId}")
-  @Operation(summary = "간병 보고서 상세 조회", description = "")*/
+  @Operation(summary = "간병 보고서 상세 조회", description = "특정 간병 보고서 상세 조회합니다.")
+  public SuccessResponse<CareReport> getCareReportDetail(@PathVariable Long careReportId) {
+    CareReport careReportDetail = careReportService.getCareReportDetail(careReportId);
+
+    return new SuccessResponse<>("간병 보고서 상세 조회 완료", careReportDetail);
+  }
 }

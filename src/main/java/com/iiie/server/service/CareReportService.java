@@ -53,13 +53,11 @@ public class CareReportService {
   }
 
   public CareReport getCareReportDetail(Long careReportId) {
-    CareReport careReport =
-        careReportRepository
-            .findById(careReportId)
-            .orElseThrow(
-                () -> new NotFoundException("careReport", careReportId, "존재하지 않는 간병 보고서 입니다."));
 
-    return careReport;
+    return careReportRepository
+        .findById(careReportId)
+        .orElseThrow(
+            () -> new NotFoundException("careReport", careReportId, "존재하지 않는 간병 보고서 입니다."));
   }
 
   @Transactional
