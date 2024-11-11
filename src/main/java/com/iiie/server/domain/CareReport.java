@@ -60,7 +60,7 @@ public class CareReport {
   }
 
   // ===연관관계===/
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "caregiver_id", nullable = false)
   private Caregiver caregiver;
 
