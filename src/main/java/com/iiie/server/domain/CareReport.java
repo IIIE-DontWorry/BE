@@ -44,7 +44,7 @@ public class CareReport {
   @Column(nullable = false)
   private LocalDateTime updatedAt;
 
-  //==시간관련==//
+  // ==시간관련==//
   @PrePersist
   private void prePersist() {
     ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));

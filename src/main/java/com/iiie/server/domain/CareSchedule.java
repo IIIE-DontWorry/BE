@@ -12,7 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import lombok.AccessLevel;
@@ -56,7 +55,7 @@ public class CareSchedule {
   @JsonBackReference // 순환참조 방지
   private CareReport careReport;
 
-  //===연관관계보조메서드==//
+  // ===연관관계보조메서드==//
   public void setCareReport(CareReport careReport) {
     this.careReport = careReport;
     if (!careReport.getCareSchedules().contains(careReport)) {

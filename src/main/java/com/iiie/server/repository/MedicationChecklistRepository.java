@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MedicationChecklistRepository extends JpaRepository<MedicationCheckList, Long> {
 
-    Optional<List<MedicationCheckList>> findAllByPatientId(Long patientId);
+  Optional<List<MedicationCheckList>> findAllByPatientId(Long patientId);
 }

@@ -7,13 +7,13 @@ import lombok.Setter;
 
 public class CareScheduleDTO {
 
-    private Long id;
-    private String description;
-    private LocalDateTime activityAt;
+  private Long id;
+  private String description;
+  private LocalDateTime activityAt;
 
-    @Getter
-    @Setter
-    public static class CareScheduleRequest {
-        private List<String> careSchedulesDescription;
-    }
+  @Getter
+  @Setter
+  public static class CareScheduleRequest {
+    private List<String> careSchedulesDescription;
+  }
 }
