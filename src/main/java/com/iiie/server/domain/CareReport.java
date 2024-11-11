@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Builder
 @Entity
@@ -35,27 +36,27 @@ public class CareReport {
   @Column(name = "care_report_id")
   private Long id;
 
-  @Column(nullable = false)
+  @ColumnDefault(value = "")
   private String specialNote;
 
   @Column(nullable = false)
-  private LocalDateTime createdAt;
+  private LocalDate createdAt;
 
   @Column(nullable = false)
-  private LocalDateTime updatedAt;
+  private LocalDate updatedAt;
 
   // ==시간관련==//
   @PrePersist
   private void prePersist() {
     ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-    this.createdAt = nowInKorea.toLocalDateTime();
-    this.updatedAt = nowInKorea.toLocalDateTime();
+    this.createdAt = nowInKorea.toLocalDate();
+    this.updatedAt = nowInKorea.toLocalDate();
   }
 
   @PreUpdate
   private void preUpdate() {
     ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-    this.updatedAt = nowInKorea.toLocalDateTime();
+    this.updatedAt = nowInKorea.toLocalDate();
   }
 
   // ===연관관계===/
@@ -63,15 +64,28 @@ public class CareReport {
   @JoinColumn(name = "caregiver_id", nullable = false)
   private Caregiver caregiver;
 
-  @OneToMany(mappedBy = "careReport", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Getter
+  @OneToMany(
+      mappedBy = "careReport",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.EAGER)
   @Builder.Default
   private List<CareSchedule> careSchedules = new ArrayList<>();
 
-  @OneToMany(mappedBy = "careReport", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(
+      mappedBy = "careReport",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.EAGER)
   @Builder.Default
   private List<MedicationCheckList> medicationCheckLists = new ArrayList<>();
 
-  @OneToMany(mappedBy = "careReport", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(
+      mappedBy = "careReport",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.EAGER)
   @Builder.Default
   private List<GuardianRequest> guardianRequests = new ArrayList<>();
 }
