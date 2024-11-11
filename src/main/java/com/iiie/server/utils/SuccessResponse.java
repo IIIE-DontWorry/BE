@@ -20,8 +20,8 @@ public class SuccessResponse<T> {
   @Schema(description = "응답 데이터")
   private T data;
 
-  public SuccessResponse(String status, String message, T data) {
-    this.status = status;
+  public SuccessResponse(String message, T data) {
+    this.status = "success";
     this.message = message;
     this.data = data;
   }

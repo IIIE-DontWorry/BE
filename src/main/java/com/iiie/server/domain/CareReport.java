@@ -10,15 +10,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Builder
 @Entity
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CareReport {
@@ -30,6 +37,26 @@ public class CareReport {
 
   @Column(nullable = false)
   private String specialNote;
+
+  @Column(nullable = false)
+  private LocalDateTime createdAt;
+
+  @Column(nullable = false)
+  private LocalDateTime updatedAt;
+
+  //==시간관련==//
+  @PrePersist
+  private void prePersist() {
+    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+    this.createdAt = nowInKorea.toLocalDateTime();
+    this.updatedAt = nowInKorea.toLocalDateTime();
+  }
+
+  @PreUpdate
+  private void preUpdate() {
+    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+    this.updatedAt = nowInKorea.toLocalDateTime();
+  }
 
   // ===연관관계===/
   @ManyToOne(fetch = FetchType.LAZY)

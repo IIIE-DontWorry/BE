@@ -7,9 +7,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import lombok.Getter;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
+@Getter
 public class Caregiver {
 
   @Id
