@@ -13,18 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/care-givers")
 public class CaregiverController {
 
-    private final CaregiverService caregiverService;
+  private final CaregiverService caregiverService;
 
-    public CaregiverController(CaregiverService caregiverService) {
-        this.caregiverService = caregiverService;
-    }
+  public CaregiverController(CaregiverService caregiverService) {
+    this.caregiverService = caregiverService;
+  }
 
-    @PostMapping
-    SuccessResponse<Caregiver> createCaregiver(@RequestBody CaregiverDTO.CreationCaregiver request) {
-        Caregiver caregiver = caregiverService.createCaregiver(request.getName(), request.getPhone(),
-                request.getHospital(),
-                request.getCareerHistories(), request.getGuardianUniqueCode());
+  @PostMapping
+  SuccessResponse<Caregiver> createCaregiver(@RequestBody CaregiverDTO.CreationCaregiver request) {
+    Caregiver caregiver =
+        caregiverService.createCaregiver(
+            request.getName(),
+            request.getPhone(),
+            request.getHospital(),
+            request.getCareerHistories(),
+            request.getGuardianUniqueCode());
 
-        return new SuccessResponse<>("간병인이 가입이 완료되었습니다.", caregiver);
-    }
+    return new SuccessResponse<>("간병인이 가입이 완료되었습니다.", caregiver);
+  }
 }

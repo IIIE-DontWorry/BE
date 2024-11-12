@@ -56,7 +56,7 @@ public class Caregiver {
   @JsonIgnore
   private List<CareerHistory> careerHistories = new ArrayList<>();
 
-  //===연관관계 보조 메서드===//
+  // ===연관관계 보조 메서드===//
   public void setPatient(Patient patient) {
     this.patient = patient;
   }
