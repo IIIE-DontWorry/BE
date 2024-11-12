@@ -15,11 +15,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 @Entity
 public class CareSchedule {
 
@@ -39,12 +41,4 @@ public class CareSchedule {
   @JoinColumn(name = "care_report_id", nullable = false)
   @JsonIgnore
   private CareReport careReport;
-
-  // ===연관관계보조메서드==//
-  public void setCareReport(CareReport careReport) {
-    this.careReport = careReport;
-    if (!careReport.getCareSchedules().contains(careReport)) {
-      careReport.getCareSchedules().add(this);
-    }
-  }
 }

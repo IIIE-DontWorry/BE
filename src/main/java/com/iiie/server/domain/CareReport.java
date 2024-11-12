@@ -1,5 +1,7 @@
 package com.iiie.server.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,12 +47,17 @@ public class CareReport {
   @Column(nullable = false)
   private LocalDate updatedAt;
 
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+  @Column(nullable = false)
+  private LocalDate postedDate;
+
   // ==시간관련==//
   @PrePersist
   private void prePersist() {
     ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
     this.createdAt = nowInKorea.toLocalDate();
     this.updatedAt = nowInKorea.toLocalDate();
+    this.postedDate = nowInKorea.toLocalDate();
   }
 
   @PreUpdate
@@ -71,6 +78,7 @@ public class CareReport {
       orphanRemoval = true,
       fetch = FetchType.EAGER)
   @Builder.Default
+  @JsonIgnore
   private List<CareSchedule> careSchedules = new ArrayList<>();
 
   @OneToMany(
@@ -79,6 +87,7 @@ public class CareReport {
       orphanRemoval = true,
       fetch = FetchType.EAGER)
   @Builder.Default
+  @JsonIgnore
   private List<MedicationCheckList> medicationCheckLists = new ArrayList<>();
 
   @OneToMany(
@@ -87,5 +96,53 @@ public class CareReport {
       orphanRemoval = true,
       fetch = FetchType.EAGER)
   @Builder.Default
+  @JsonIgnore
   private List<GuardianRequest> guardianRequests = new ArrayList<>();
+
+  // ===연관관계 보조 메서드===//
+  public void updateSpecialNote(String specialNote) {
+    this.specialNote = specialNote;
+  }
+
+  public void addCareSchedule(CareSchedule careSchedule) {
+    this.careSchedules.add(careSchedule);
+    careSchedule.setCareReport(this);
+  }
+
+  public void addMedicationCheckList(MedicationCheckList medicationCheckList) {
+    this.medicationCheckLists.add(medicationCheckList);
+    medicationCheckList.setCareReport(this);
+  }
+
+  public void addGuardianRequest(GuardianRequest guardianRequest) {
+    this.guardianRequests.add(guardianRequest);
+    guardianRequest.setCareReport(this);
+  }
+
+  // ===보조 메서드===//
+  public void updateCareSchedules(List<CareSchedule> newCareSchedules) {
+    this.careSchedules.clear();
+
+    for (CareSchedule careSchedule : newCareSchedules) {
+      addCareSchedule(careSchedule);
+    }
+  }
+
+  public void updateMedicationCheckLists(List<MedicationCheckList> newMedicationCheckLists) {
+    this.medicationCheckLists.clear();
+    for (MedicationCheckList medicationCheckList : newMedicationCheckLists) {
+      addMedicationCheckList(medicationCheckList);
+    }
+  }
+
+  public void updateGuardianRequests(List<GuardianRequest> guardianRequests) {
+    this.guardianRequests.clear();
+    for (GuardianRequest guardianRequest : guardianRequests) {
+      addGuardianRequest(guardianRequest);
+    }
+  }
+
+  public void changePostedDate(String postedDate) {
+    this.postedDate = LocalDate.parse(postedDate);
+  }
 }

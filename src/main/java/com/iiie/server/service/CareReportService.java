@@ -1,11 +1,18 @@
 package com.iiie.server.service;
 
 import com.iiie.server.domain.CareReport;
+import com.iiie.server.domain.CareSchedule;
 import com.iiie.server.domain.Caregiver;
+import com.iiie.server.domain.GuardianRequest;
+import com.iiie.server.domain.MedicationCheckList;
+import com.iiie.server.dto.CareReportDTO.CareReportPatchRequest;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.CareGiverRepository;
 import com.iiie.server.repository.CareReportRepository;
+import com.iiie.server.type.TakenStatus;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +48,7 @@ public class CareReportService {
 
     LocalDate today = LocalDate.now();
     Optional<CareReport> existingReport =
-        careReportRepository.findByCaregiverIdAndCreatedAt(careGiverId, today);
+        careReportRepository.findByCaregiverIdAndPostedDate(careGiverId, today);
 
     if (existingReport.isPresent()) {
       return existingReport.get();
@@ -61,7 +68,79 @@ public class CareReportService {
   }
 
   @Transactional
-  public void deleteCareReport(Long careGiverId) {
-    careReportRepository.deleteById(careGiverId);
+  public void deleteCareReport(Long careReportId) {
+    careReportRepository
+        .findById(careReportId)
+        .orElseThrow(
+            () -> new NotFoundException("careReport", careReportId, "존재하지 않는 간병보고서이므로 삭제 불가능합니다."));
+
+    careReportRepository.deleteById(careReportId);
+  }
+
+  @Transactional
+  public CareReport patchCareReport(Long careReportId, CareReportPatchRequest request) {
+    return careReportRepository
+        .findById(careReportId)
+        .map(
+            careReport -> {
+              if (request.getPostedDate() != null) {
+                careReport.changePostedDate(request.getPostedDate());
+              }
+
+              if (request.getSpecialNote() != null) {
+                careReport.updateSpecialNote(request.getSpecialNote());
+              }
+
+              if (request.getCareScheduleRequests() != null) {
+                List<CareSchedule> newSchedule =
+                    request.getCareScheduleRequests().stream()
+                        .map(
+                            scheduleRequest ->
+                                CareSchedule.builder()
+                                    .activityAt(
+                                        LocalTime.of(
+                                            scheduleRequest.getHour(), scheduleRequest.getMinute()))
+                                    .description(scheduleRequest.getDescription())
+                                    .build())
+                        .toList();
+                careReport.updateCareSchedules(newSchedule);
+              }
+
+              if (request.getMedicationChecks() != null) {
+                List<MedicationCheckList> newCheckList =
+                    request.getMedicationChecks().stream()
+                        .map(
+                            medicationCheck ->
+                                MedicationCheckList.builder()
+                                    .name(medicationCheck.getName())
+                                    .morningTakenStatus(
+                                        TakenStatus.fromString(
+                                            medicationCheck.getMorningTakenStatus()))
+                                    .afternoonTakenStatus(
+                                        TakenStatus.fromString(
+                                            medicationCheck.getAfternoonTakenStatus()))
+                                    .eveningTakenStatus(
+                                        TakenStatus.fromString(
+                                            medicationCheck.getEveningTakenStatus()))
+                                    .build())
+                        .toList();
+                careReport.updateMedicationCheckLists(newCheckList);
+              }
+
+              if (request.getGuardianRequests() != null) {
+                List<GuardianRequest> guardianRequests =
+                    request.getGuardianRequests().stream()
+                        .map(
+                            guardianRequest ->
+                                GuardianRequest.builder()
+                                    .request(guardianRequest.getRequest())
+                                    .build())
+                        .toList();
+                careReport.updateGuardianRequests(guardianRequests);
+              }
+              return careReport;
+            })
+        .orElseThrow(
+            () -> new NotFoundException("careReport", careReportId, "존재하지 않는 간병 보고서 입니다."));
   }
 }

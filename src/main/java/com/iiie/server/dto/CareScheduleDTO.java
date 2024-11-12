@@ -14,6 +14,7 @@ public class CareScheduleDTO {
   @Setter
   public static class CareScheduleRequest {
     private String description; // 일지 내용
+    private int year;
     private int hour;
     private int minute;
   }
