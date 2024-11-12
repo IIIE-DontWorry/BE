@@ -5,8 +5,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Patient {
 
   @Id
@@ -26,6 +35,6 @@ public class Patient {
   @Column(nullable = false)
   private String hospitalName;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   private Long kakaoId;
 }
