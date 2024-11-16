@@ -17,41 +17,43 @@ import org.springframework.stereotype.Service;
 @Service
 public class KakaoServiceImpl implements KakaoService {
 
-    @Override
-    public HashMap<String, Object> getUserInfo(String accessToken) {
-        return null;
+  @Override
+  public HashMap<String, Object> getUserInfo(String accessToken) {
+    return null;
+  }
+
+  @Override
+  public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
+
+    // -----Kakao POST 요청-----//
+    String REQUEST_URL =
+        "https://kauth.kakao.com/oauth/token?grant_type=authorization_code"
+            + "&client_id="
+            + clientId
+            + "&code="
+            + code;
+
+    URL url = new URL(REQUEST_URL);
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod("POST");
+
+    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+    String line = "";
+    String result = "";
+
+    while ((line = br.readLine()) != null) {
+      result += line;
     }
 
-    @Override
-    public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    Map<String, Object> jsonMap =
+        objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {});
 
-        //-----Kakao POST 요청-----//
-        String REQUEST_URL =
-                "https://kauth.kakao.com/oauth/token?grant_type=authorization_code"+
-                        "&client_id=" + clientId +
-                        "&code=" + code;
+    log.info("Response Body : " + result);
 
-        URL url = new URL(REQUEST_URL);
-        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-        conn.setRequestMethod("POST");
+    String accessToken = (String) jsonMap.get("access_token");
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-        String line = "";
-        String result = "";
-
-        while ((line = br.readLine()) != null) {
-            result += line;
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> jsonMap = objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {
-        });
-
-        log.info("Response Body : " + result);
-
-        String accessToken = (String) jsonMap.get("access_token");
-
-        return accessToken;
-        }
+    return accessToken;
+  }
 }

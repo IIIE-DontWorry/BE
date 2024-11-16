@@ -17,20 +17,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("")
 public class UserController {
 
-    private final OauthConfig oauthConfig;
-    private final KakaoService kakaoService;
+  private final OauthConfig oauthConfig;
+  private final KakaoService kakaoService;
 
-    public UserController(JwtConfig jwtConfig, OauthConfig oauthConfig, KakaoService kakaoService) {
-        this.oauthConfig = oauthConfig;
-        this.kakaoService = kakaoService;
-    }
+  public UserController(JwtConfig jwtConfig, OauthConfig oauthConfig, KakaoService kakaoService) {
+    this.oauthConfig = oauthConfig;
+    this.kakaoService = kakaoService;
+  }
 
-    @GetMapping("/callback")
-    public SuccessResponse<?> callback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
+  @GetMapping("/callback")
+  public SuccessResponse<?> callback(
+      @RequestParam("code") String code, HttpServletResponse response) throws IOException {
 
-        log.info("code : " + code);
-        String kakao_accessToken = kakaoService.getAccessTokenFromKakao(oauthConfig.CLIENT_ID, code);//kakao_access_token
+    log.info("code : " + code);
+    String kakao_accessToken =
+        kakaoService.getAccessTokenFromKakao(oauthConfig.CLIENT_ID, code); // kakao_access_token
 
-        return new SuccessResponse<>("카카오 인증 토큰 발급 완료", kakao_accessToken);
-    }
+    return new SuccessResponse<>("카카오 인증 토큰 발급 완료", kakao_accessToken);
+  }
 }

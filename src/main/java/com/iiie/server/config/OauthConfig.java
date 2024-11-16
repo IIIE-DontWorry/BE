@@ -6,6 +6,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OauthConfig {
 
-    @Value("${kakao.client_id}")
-    public String CLIENT_ID;
+  @Value("${kakao.client_id}")
+  public String CLIENT_ID;
 }
