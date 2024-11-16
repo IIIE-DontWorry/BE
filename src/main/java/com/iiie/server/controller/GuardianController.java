@@ -6,6 +6,7 @@ import com.iiie.server.dto.GuardianDTO.CreationGuardian;
 import com.iiie.server.dto.PatientDTO.CreationPatient;
 import com.iiie.server.service.GuardianService;
 import com.iiie.server.utils.SuccessResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ public class GuardianController {
   }
 
   @PostMapping
+  @Operation(summary = "보호자 회원가입(카카오 미완)", description = "보호자는 환자 정보와 함께 회원가입합니다.(카카오 미완)")
   public SuccessResponse<Guardian> createGuardian(
       @RequestBody GuardianAndPatientDTO.CreationRequest request) {
 

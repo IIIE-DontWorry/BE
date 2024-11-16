@@ -4,6 +4,7 @@ import com.iiie.server.domain.Caregiver;
 import com.iiie.server.dto.CaregiverDTO;
 import com.iiie.server.service.CaregiverService;
 import com.iiie.server.utils.SuccessResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ public class CaregiverController {
   }
 
   @PostMapping
+  @Operation(summary = "간병인 회원가입(카카오 미완)", description = "간병인이 보호자 인증코드를 가지고 회원가입합니다.(카카오 미완)")
   SuccessResponse<Caregiver> createCaregiver(@RequestBody CaregiverDTO.CreationCaregiver request) {
     Caregiver caregiver =
         caregiverService.createCaregiver(
