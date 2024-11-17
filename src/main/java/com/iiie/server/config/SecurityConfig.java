@@ -43,7 +43,7 @@ public class SecurityConfig {
                     .requestMatchers("/care-givers", "/guardian")
                     .permitAll() // 카카오 로그인 아닌 회원가입 개발용
                     .anyRequest()
-                    .authenticated())
+                    .permitAll()) //TODO: 실제 main 환경에서는 authenticated로 변경할것
         .formLogin(AbstractHttpConfigurer::disable) // 폼 로그인 비활성화
         .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
