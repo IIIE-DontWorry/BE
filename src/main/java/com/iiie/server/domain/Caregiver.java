@@ -1,16 +1,28 @@
 package com.iiie.server.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Caregiver {
 
@@ -38,4 +50,22 @@ public class Caregiver {
   @OneToOne
   @JoinColumn(name = "patient_id", unique = true)
   private Patient patient;
+
+  @OneToMany(mappedBy = "caregiver", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  @JsonIgnore
+  private List<CareerHistory> careerHistories = new ArrayList<>();
+
+  // ===연관관계 보조 메서드===//
+  public void setPatient(Patient patient) {
+    this.patient = patient;
+  }
+
+  public void addCareerHistories(List<CareerHistory> careerHistories) {
+    this.careerHistories.clear();
+    for (CareerHistory careerHistory : careerHistories) {
+      careerHistory.setCaregiver(this);
+      this.careerHistories.add(careerHistory);
+    }
+  }
 }

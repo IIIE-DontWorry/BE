@@ -17,7 +17,7 @@ else
   echo "Docker 이미지 빌드 중 오류가 발생했습니다."
   exit 1
 fi
-d
+
 # Docker Hub에 이미지 push
 echo "Docker Hub에 이미지 '$IMAGE_NAME'를 push 중..."
 docker push $IMAGE_NAME
