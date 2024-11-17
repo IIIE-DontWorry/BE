@@ -1,5 +1,6 @@
 package com.iiie.server.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,9 +9,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Guardian {
 
   @Id
@@ -37,11 +47,27 @@ public class Guardian {
   private UUID uniqueCode;
 
   // ===연관관계===//
-  @OneToOne
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "caregiver_id", unique = true)
   private Caregiver caregiver;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "patient_id", unique = true)
   private Patient patient;
+
+  // ===연관관계 보조 메서드===//
+  public void setPatient(Patient patient) {
+    this.patient = patient;
+  }
+
+  public void setCaregiver(Caregiver caregiver) {
+    this.caregiver = caregiver;
+    if (caregiver != null) {
+      caregiver.setGuardian(this);
+    }
+  }
+
+  public Caregiver getCaregiver() {
+    return this.caregiver;
+  }
 }

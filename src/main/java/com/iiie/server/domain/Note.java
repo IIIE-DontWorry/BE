@@ -30,10 +30,15 @@ public class Note {
   @Column(name = "note_id")
   private Long id;
 
+  @Column(nullable=false)
+  private String createdBy;
+
   @Column(nullable = false)
   private LocalDate createdAt;
+
   @Column(columnDefinition = "TEXT", nullable = false)
   private String noteContent;
+
   // ==시간관련==//
   @PrePersist
   private void prePersist() {
@@ -48,4 +53,5 @@ public class Note {
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "guardian_id", nullable = false)
   private Guardian guardian;
+
 }
