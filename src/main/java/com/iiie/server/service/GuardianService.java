@@ -2,7 +2,9 @@ package com.iiie.server.service;
 
 import com.iiie.server.domain.Guardian;
 import com.iiie.server.domain.Patient;
+import com.iiie.server.dto.GuardianDTO;
 import com.iiie.server.repository.GuardianRepository;
+import com.iiie.server.exception.NotFoundException;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,5 +50,37 @@ public class GuardianService {
     guardian.setPatient(patient);
 
     return guardianRepository.save(guardian);
+  }
+
+  @Transactional(readOnly = true)
+  public GuardianDTO.InquiryGuardian inquiryInfo(Long guardianId) {
+    Guardian guardian = guardianRepository.findById(guardianId)
+            .orElseThrow(() -> new NotFoundException("guardian: ", guardianId, "존재하지 않는 보호자입니다."));
+
+    GuardianDTO.InquiryGuardian inquiryGuardian = new GuardianDTO.InquiryGuardian();
+    inquiryGuardian.setName(guardian.getName());
+    inquiryGuardian.setPhone(guardian.getPhone());
+    inquiryGuardian.setAddress(guardian.getAddress());
+    inquiryGuardian.setPatientName(guardian.getPatient().getName());
+
+    return inquiryGuardian;
+  }
+
+  @Transactional
+  public GuardianDTO.UpdateGuardian updateInfo(Long guardianId, GuardianDTO.UpdateGuardian updateGuardian) {
+    Guardian guardian = guardianRepository.findById(guardianId)
+            .orElseThrow(() -> new NotFoundException("guardian: ", guardianId, "존재하지 않는 보호자입니다."));
+
+    guardian.setName(updateGuardian.getName());
+    guardian.setPhone(updateGuardian.getPhone());
+    guardian.setAddress(updateGuardian.getAddress());
+    guardianRepository.save(guardian);
+
+    GuardianDTO.UpdateGuardian updatedGuardian = new GuardianDTO.UpdateGuardian();
+    updatedGuardian.setName(guardian.getName());
+    updatedGuardian.setPhone(guardian.getPhone());
+    updatedGuardian.setAddress(guardian.getAddress());
+
+    return updatedGuardian;
   }
 }
