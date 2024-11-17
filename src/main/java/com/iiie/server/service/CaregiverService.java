@@ -4,6 +4,7 @@ import com.iiie.server.domain.CareerHistory;
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.Guardian;
 import com.iiie.server.exception.NotFoundException;
+import com.iiie.server.repository.CareGiverRepository;
 import com.iiie.server.repository.GuardianRepository;
 import java.util.List;
 import java.util.UUID;
@@ -15,9 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class CaregiverService {
 
   private final GuardianRepository guardianRepository;
+  private final CareGiverRepository careGiverRepository;
 
-  public CaregiverService(GuardianRepository guardianRepository) {
+  public CaregiverService(
+      GuardianRepository guardianRepository, CareGiverRepository careGiverRepository) {
     this.guardianRepository = guardianRepository;
+    this.careGiverRepository = careGiverRepository;
   }
 
   public Caregiver createCaregiver(
@@ -54,6 +58,6 @@ public class CaregiverService {
     caregiver.setPatient(guardian.getPatient());
     caregiver.addCareerHistories(careerHistories);
 
-    return caregiver;
+    return careGiverRepository.save(caregiver);
   }
 }

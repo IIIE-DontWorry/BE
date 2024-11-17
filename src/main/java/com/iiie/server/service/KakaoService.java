@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public interface KakaoService {
 
-  HashMap<String, Object> getUserInfo(String accessToken);
+  HashMap<String, Object> getUserInfo(String accessToken) throws IOException;
 
   String getAccessTokenFromKakao(String clientId, String code) throws IOException;
 }
