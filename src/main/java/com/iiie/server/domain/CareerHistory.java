@@ -33,4 +33,8 @@ public class CareerHistory {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "caregiver_id", nullable = false)
   private Caregiver caregiver;
+
+  public void setCaregiver(Caregiver caregiver) {
+    this.caregiver = caregiver;
+  }
 }
