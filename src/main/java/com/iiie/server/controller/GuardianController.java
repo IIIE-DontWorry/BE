@@ -50,7 +50,7 @@ public class GuardianController {
   @Operation(summary = "마이 페이지 조회", description = "보호자는 자신의 기본 정보를 확인할 수 있다.")
   public SuccessResponse<GuardianDTO.InquiryGuardian> inquiryInfo(@PathVariable Long guardianId) {
     GuardianDTO.InquiryGuardian inquiryInfo = guardianService.inquiryInfo(guardianId);
-    return new SuccessResponse<>("마이 페이지 조회 완료", inquiryInfo);
+    return new SuccessResponse<>("보호자 마이 페이지 조회 완료", inquiryInfo);
   }
 
   @PostMapping("/myPage/update/{guardianId}")
