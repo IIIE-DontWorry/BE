@@ -11,8 +11,8 @@ public class NoteDTO {
     @Getter
     @Setter
     public static class NoteRequest {
-        private Long guardianId;
-        private Long careGiverId;
+        private Long guardianId; //샌더
+        private Long careGiverId;  //리시버
         private String noteContent;
     }
 

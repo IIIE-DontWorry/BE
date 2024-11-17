@@ -67,6 +67,17 @@ public class NoteService {
                 throw new IllegalStateException("매칭된 보호자를 찾을 수 없습니다.");
             }
             createdByType = "caregiver";
+
+            // Note 엔티티 생성
+            Note note = Note.builder()
+                    .caregiver(caregiver)
+                    .guardian(caregiver.getGuardian())
+                    .createdBy(createdByType)
+                    .noteContent(noteRequest.getNoteContent())
+                    .build();
+
+            Note savedNote = noteRepository.save(note);
+            return convertToNoteResponse(savedNote);
         }
 
         // 보호자가 작성한 경우
@@ -78,23 +89,20 @@ public class NoteService {
                 throw new IllegalStateException("매칭된 간병인을 찾을 수 없습니다.");
             }
             createdByType = "guardian";
+
+            // Note 엔티티 생성
+            Note note = Note.builder()
+                    .caregiver(guardian.getCaregiver())
+                    .guardian(guardian)
+                    .createdBy(createdByType)
+                    .noteContent(noteRequest.getNoteContent())
+                    .build();
+
+            Note savedNote = noteRepository.save(note);
+            return convertToNoteResponse(savedNote);
         } else {
             throw new IllegalArgumentException("간병인 ID 또는 보호자 ID 중 하나는 반드시 제공되어야 합니다.");
         }
-
-        // Note 엔티티 생성
-        Note note = Note.builder()
-                .caregiver(caregiver)
-                .guardian(guardian)
-                .createdBy(createdByType)
-                .noteContent(noteRequest.getNoteContent())
-                .build();
-
-        // 저장
-        Note savedNote = noteRepository.save(note);
-
-        // 엔티티를 DTO로 변환하여 반환
-        return convertToNoteResponse(savedNote);
     }
 
     private NoteDTO.NoteResponse convertToNoteResponse(Note note) {
