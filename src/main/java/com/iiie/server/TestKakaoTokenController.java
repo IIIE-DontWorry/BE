@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 public class TestKakaoTokenController {
 
-    private final UserService userService;
-    private final KakaoService kakaoService;
+  private final UserService userService;
+  private final KakaoService kakaoService;
 
-    @GetMapping("/kakao")
-    public String kakologin(Model model, HttpServletResponse response) {
-        response.setContentType(MediaType.TEXT_HTML_VALUE);
+  @GetMapping("/kakao")
+  public String kakologin(Model model, HttpServletResponse response) {
+    response.setContentType(MediaType.TEXT_HTML_VALUE);
 
-        return "html/index";
-    }
+    return "html/index";
+  }
 }
