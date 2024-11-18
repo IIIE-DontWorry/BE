@@ -12,11 +12,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
@@ -24,6 +21,7 @@ import org.hibernate.annotations.ColumnDefault;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 public class Caregiver {
 
   @Id
@@ -45,8 +43,12 @@ public class Caregiver {
 
   @ColumnDefault(value = "0.0")
   private Double mannerScore;
-
+  
+  //읽기 전용
   // ===연관관계===//
+  @OneToOne(mappedBy = "caregiver", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Guardian guardian;
+
   @OneToOne
   @JoinColumn(name = "patient_id", unique = true)
   private Patient patient;
