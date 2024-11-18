@@ -49,4 +49,21 @@ public class CaregiverService {
 
     return updatedCaregiver;
   }
+
+  @Transactional(readOnly = true)
+  public CaregiverDTO.GuardianProfile inquiryGuardianProfile(Long caregiverId) {
+    Caregiver caregiver = caregiverRepository.findById(caregiverId)
+            .orElseThrow(() -> new NotFoundException("caregiver", caregiverId, "존재하지 않는 간병인입니다."));
+
+    if (caregiver.getGuardian() == null) {
+      throw new NotFoundException("caregiver", caregiverId, "간병인에 연결된 보호자가 없습니다.");
+    }
+
+    CaregiverDTO.GuardianProfile guardianProfile = new CaregiverDTO.GuardianProfile();
+    guardianProfile.setName(caregiver.getGuardian().getName());
+    guardianProfile.setPhone(caregiver.getGuardian().getPhone());
+    guardianProfile.setAddress(caregiver.getGuardian().getAddress());
+
+    return guardianProfile;
+  }
 }

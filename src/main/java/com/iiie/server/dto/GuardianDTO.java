@@ -38,4 +38,12 @@ public class GuardianDTO {
     private String phone;
     private String address;
   }
+
+  @Getter
+  @Setter
+  public static class CaregiverProfile {
+    private String name;
+    private String phone;
+    private String hospital;
+  }
 }

@@ -83,4 +83,21 @@ public class GuardianService {
 
     return updatedGuardian;
   }
+
+  @Transactional(readOnly = true)
+  public GuardianDTO.CaregiverProfile inquiryCaregiverProfile(Long guardianId) {
+    Guardian guardian = guardianRepository.findById(guardianId)
+            .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자입니다."));
+
+    if (guardian.getCaregiver() == null) {
+      throw new NotFoundException("guardian", guardianId, "보호자에 연결된 간병인이 없습니다.");
+    }
+
+    GuardianDTO.CaregiverProfile caregiverProfile = new GuardianDTO.CaregiverProfile();
+    caregiverProfile.setName(guardian.getCaregiver().getName());
+    caregiverProfile.setPhone(guardian.getCaregiver().getPhone());
+    caregiverProfile.setHospital(guardian.getCaregiver().getHospital());
+
+    return caregiverProfile;
+  }
 }

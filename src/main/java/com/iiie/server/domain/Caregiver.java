@@ -43,8 +43,12 @@ public class Caregiver {
 
   @ColumnDefault(value = "0.0")
   private Double mannerScore;
-
+  
+  //읽기 전용
   // ===연관관계===//
+  @OneToOne(mappedBy = "caregiver", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Guardian guardian;
+
   @OneToOne
   @JoinColumn(name = "patient_id", unique = true)
   private Patient patient;

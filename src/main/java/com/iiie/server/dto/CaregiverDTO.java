@@ -45,4 +45,12 @@ public class CaregiverDTO {
     private String phone;
     private String hospital;
   }
+
+  @Getter
+  @Setter
+  public static class GuardianProfile {
+    private String name;
+    private String phone;
+    private String address;
+  }
 }

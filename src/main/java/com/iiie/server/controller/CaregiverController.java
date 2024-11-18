@@ -29,4 +29,11 @@ public class CaregiverController {
     CaregiverDTO.UpdateCaregiver updateInfo = caregiverService.updateInfo(caregiverId, updateCaregiver);
     return new SuccessResponse<>("간병인 정보 수정 완료", updateInfo);
   }
+
+  @GetMapping("/myPage/guardianProfile/{caregiverId}")
+  @Operation(summary = "보호자 정보 조회", description = "간병인은 연결된 보호자의 기본 정보를 조회할 수 있다.")
+  public SuccessResponse<CaregiverDTO.GuardianProfile> inquiryGuardianProfile(@PathVariable Long caregiverId) {
+    CaregiverDTO.GuardianProfile guardianProfile = caregiverService.inquiryGuardianProfile(caregiverId);
+    return new SuccessResponse<>("보호자 정보 조회 완료", guardianProfile);
+  }
 }
