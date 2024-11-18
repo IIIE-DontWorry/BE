@@ -26,7 +26,7 @@ public class GuardianController {
   }
 
   @PostMapping
-  @Operation(summary = "보호자 회원가입(카카오 미완)", description = "보호자는 환자 정보와 함께 회원가입합니다.(카카오 미완)")
+  @Operation(summary = "보호자 회원가입(개발용)", description = "보호자는 환자 정보와 함께 회원가입합니다.(카카오 미완)")
   public SuccessResponse<Guardian> createGuardian(
       @RequestBody GuardianAndPatientDTO.CreationRequest request) {
 

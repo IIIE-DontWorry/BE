@@ -15,6 +15,17 @@ public class CaregiverController {
   public CaregiverController(CaregiverService caregiverService) {
     this.caregiverService = caregiverService;
   }
+  
+  @PostMapping
+  @Operation(summary = "간병인 회원가입(개발용)", description = "간병인이 보호자 인증코드를 가지고 회원가입합니다.(카카오 미완)")
+  SuccessResponse<Caregiver> createCaregiver(@RequestBody CaregiverDTO.CreationCaregiver request) {
+    Caregiver caregiver =
+        caregiverService.createCaregiver(
+            request.getName(),
+            request.getPhone(),
+            request.getHospital(),
+            request.getCareerHistories(),
+            request.getGuardianUniqueCode());
 
   @GetMapping("/myPage/{caregiverId}")
   @Operation(summary = "마이 페이지 조회", description = "간병인은 자신의 기본 정보를 확인할 수 있다.")

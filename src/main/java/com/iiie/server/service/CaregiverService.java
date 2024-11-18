@@ -3,8 +3,11 @@ package com.iiie.server.service;
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.Patient;
 import com.iiie.server.dto.CaregiverDTO;
-import com.iiie.server.repository.CaregiverRepository;
+import com.iiie.server.repository.CareGiverRepository;
+import com.iiie.server.repository.GuardianRepository;
 import com.iiie.server.exception.NotFoundException;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,10 +15,50 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class CaregiverService {
 
-  private final CaregiverRepository caregiverRepository;
+  private final GuardianRepository guardianRepository;
+  private final CareGiverRepository careGiverRepository;
 
-  public CaregiverService(CaregiverRepository caregiverRepository) {
-    this.caregiverRepository = caregiverRepository;
+  public CaregiverService(
+      GuardianRepository guardianRepository, CareGiverRepository careGiverRepository) {
+    this.guardianRepository = guardianRepository;
+    this.careGiverRepository = careGiverRepository;
+  }
+  
+    public Caregiver createCaregiver(
+      String name,
+      String phone,
+      String hospital,
+      List<String> careerHistoryDescriptions,
+      UUID guardianUniqueCode) {
+
+    Guardian guardian =
+        guardianRepository
+            .findByUniqueCode(guardianUniqueCode)
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "guardian", guardianUniqueCode, "코드와 일치하는 보호자가 존재하지 않습니다."));
+
+    List<CareerHistory> careerHistories =
+        careerHistoryDescriptions.stream()
+            .map(
+                careerHistoryDescription ->
+                    CareerHistory.builder().description(careerHistoryDescription).build())
+            .toList();
+
+    Caregiver caregiver =
+        Caregiver.builder()
+            .name(name)
+            .phone(phone)
+            .hospital(hospital)
+            .kakaoId(999L) // TODO: 임시 값
+            .mannerScore(0.0)
+            .careerHistories(careerHistories)
+            .build();
+    caregiver.setPatient(guardian.getPatient());
+    caregiver.addCareerHistories(careerHistories);
+
+    return careGiverRepository.save(caregiver);
   }
 
   @Transactional(readOnly = true)

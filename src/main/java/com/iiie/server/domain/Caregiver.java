@@ -65,6 +65,9 @@ public class Caregiver {
 
   public void addCareerHistories(List<CareerHistory> careerHistories) {
     this.careerHistories.clear();
-    this.careerHistories.addAll(careerHistories);
+    for (CareerHistory careerHistory : careerHistories) {
+      careerHistory.setCaregiver(this);
+      this.careerHistories.add(careerHistory);
+    }
   }
 }
