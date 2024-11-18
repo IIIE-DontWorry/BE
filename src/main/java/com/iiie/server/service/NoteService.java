@@ -7,9 +7,6 @@ import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.NoteRepository;
 import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRepository;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -47,6 +44,14 @@ public class NoteService {
         }
 
         // Note 엔티티를 NoteDTO.NoteResponse로 변환
+        return notes.stream()
+                .map(this::convertToNoteResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<NoteDTO.NoteResponse> getLatestNotes() {
+        List<Note> notes = noteRepository.findTop3ByOrderByIdDesc();
         return notes.stream()
                 .map(this::convertToNoteResponse)
                 .collect(Collectors.toList());

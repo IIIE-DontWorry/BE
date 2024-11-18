@@ -22,10 +22,17 @@ public class NoteController {
     public NoteController(NoteService noteService) { this.noteService = noteService; }
 
     @PostMapping("")
-    @Operation(summary = "쪽지 조회", description = "작성된 쪽지 목록을 모두 조회.")
+    @Operation(summary = "쪽지 조회", description = "작성된 쪽지 목록을 모두 조회합니다.")
     public SuccessResponse<List<NoteDTO.NoteResponse>> inquiryNotes(@RequestBody NoteDTO.InquiryRequest inquiryRequest) {
         List<NoteDTO.NoteResponse> messages = noteService.inquiryNotes(inquiryRequest);
         return new SuccessResponse<>("success", "쪽지 목록 조회 완료", messages);
+    }
+    
+    @GetMapping("/latest")
+    @Operation(summary = "최근 쪽지 조회", description = "가장 최근에 작성된 쪽지 3개를 조회합니다.")
+    public SuccessResponse<List<NoteDTO.NoteResponse>> getLatestNotes() {
+        List<NoteDTO.NoteResponse> notes = noteService.getLatestNotes();
+        return new SuccessResponse<>("success", "최근 쪽지 조회 완료", notes);
     }
 
     @PostMapping("/add")
