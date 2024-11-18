@@ -32,16 +32,16 @@ public class NoteService {
     }
 
     @Transactional(readOnly = true)
-    public List<NoteDTO.NoteResponse> getNotes(NoteDTO.NoteRequest noteRequest) {
+    public List<NoteDTO.NoteResponse> inquiryNotes(NoteDTO.InquiryRequest inquiryRequest) {
         List<Note> notes;
 
         // 간병인 ID로 필터링
-        if (noteRequest.getCareGiverId() != null) {
-            notes = noteRepository.findAllByCaregiverId(noteRequest.getCareGiverId());
+        if (inquiryRequest.getCareGiverId() != null) {
+            notes = noteRepository.findAllByCaregiverId(inquiryRequest.getCareGiverId());
         }
         // 보호자 ID로 필터링
-        else if (noteRequest.getGuardianId() != null) {
-            notes = noteRepository.findAllByGuardianId(noteRequest.getGuardianId());
+        else if (inquiryRequest.getGuardianId() != null) {
+            notes = noteRepository.findAllByGuardianId(inquiryRequest.getGuardianId());
         } else {
             throw new IllegalArgumentException("간병인 ID 또는 보호자 ID 중 하나는 반드시 제공되어야 합니다.");
         }
@@ -53,15 +53,15 @@ public class NoteService {
     }
 
     @Transactional
-    public NoteDTO.NoteResponse addNote(NoteDTO.NoteRequest noteRequest) {
+    public NoteDTO.NoteResponse addNote(NoteDTO.AddRequest addRequest) {
         Caregiver caregiver = null;
         Guardian guardian = null;
         String createdByType = null;
 
         // 간병인이 작성한 경우
-        if (noteRequest.getCareGiverId() != null) {
-            caregiver = caregiverRepository.findById(noteRequest.getCareGiverId())
-                    .orElseThrow(() -> new NotFoundException("caregiver", noteRequest.getCareGiverId(), "존재하지 않는 간병인입니다."));
+        if (addRequest.getCareGiverId() != null) {
+            caregiver = caregiverRepository.findById(addRequest.getCareGiverId())
+                    .orElseThrow(() -> new NotFoundException("caregiver", addRequest.getCareGiverId(), "존재하지 않는 간병인입니다."));
             guardian = caregiver.getGuardian();
             if (guardian == null) {
                 throw new IllegalStateException("매칭된 보호자를 찾을 수 없습니다.");
@@ -73,7 +73,7 @@ public class NoteService {
                     .caregiver(caregiver)
                     .guardian(caregiver.getGuardian())
                     .createdBy(createdByType)
-                    .noteContent(noteRequest.getNoteContent())
+                    .noteContent(addRequest.getNoteContent())
                     .build();
 
             Note savedNote = noteRepository.save(note);
@@ -81,9 +81,9 @@ public class NoteService {
         }
 
         // 보호자가 작성한 경우
-        else if (noteRequest.getGuardianId() != null) {
-            guardian = guardianRepository.findById(noteRequest.getGuardianId())
-                    .orElseThrow(() -> new NotFoundException("guardian", noteRequest.getGuardianId(), "존재하지 않는 보호자입니다."));
+        else if (addRequest.getGuardianId() != null) {
+            guardian = guardianRepository.findById(addRequest.getGuardianId())
+                    .orElseThrow(() -> new NotFoundException("guardian", addRequest.getGuardianId(), "존재하지 않는 보호자입니다."));
             caregiver = guardian.getCaregiver();
             if (caregiver == null) {
                 throw new IllegalStateException("매칭된 간병인을 찾을 수 없습니다.");
@@ -95,7 +95,7 @@ public class NoteService {
                     .caregiver(guardian.getCaregiver())
                     .guardian(guardian)
                     .createdBy(createdByType)
-                    .noteContent(noteRequest.getNoteContent())
+                    .noteContent(addRequest.getNoteContent())
                     .build();
 
             Note savedNote = noteRepository.save(note);

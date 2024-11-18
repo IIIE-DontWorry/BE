@@ -10,9 +10,16 @@ public class NoteDTO {
 
     @Getter
     @Setter
-    public static class NoteRequest {
-        private Long guardianId; //샌더
-        private Long careGiverId;  //리시버
+    public static class InquiryRequest {
+        private Long guardianId;
+        private Long careGiverId;
+    }
+
+    @Getter
+    @Setter
+    public static class AddRequest {
+        private Long guardianId;
+        private Long careGiverId;
         private String noteContent;
     }
 
@@ -23,5 +30,11 @@ public class NoteDTO {
         private String createdBy;
         private LocalDate createdAt;
         private String noteContent;
+    }
+
+    @Getter
+    @Setter
+    public static class DeleteNote {
+        private Long id;
     }
 }
