@@ -3,8 +3,8 @@ package com.iiie.server.service;
 import com.iiie.server.domain.Guardian;
 import com.iiie.server.domain.Patient;
 import com.iiie.server.dto.GuardianDTO;
-import com.iiie.server.repository.GuardianRepository;
 import com.iiie.server.exception.NotFoundException;
+import com.iiie.server.repository.GuardianRepository;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +54,9 @@ public class GuardianService {
 
   @Transactional(readOnly = true)
   public GuardianDTO.InquiryGuardian inquiryInfo(Long guardianId) {
-    Guardian guardian = guardianRepository.findById(guardianId)
+    Guardian guardian =
+        guardianRepository
+            .findById(guardianId)
             .orElseThrow(() -> new NotFoundException("guardian: ", guardianId, "존재하지 않는 보호자입니다."));
 
     GuardianDTO.InquiryGuardian inquiryGuardian = new GuardianDTO.InquiryGuardian();
@@ -67,8 +69,11 @@ public class GuardianService {
   }
 
   @Transactional
-  public GuardianDTO.UpdateGuardian updateInfo(Long guardianId, GuardianDTO.UpdateGuardian updateGuardian) {
-    Guardian guardian = guardianRepository.findById(guardianId)
+  public GuardianDTO.UpdateGuardian updateInfo(
+      Long guardianId, GuardianDTO.UpdateGuardian updateGuardian) {
+    Guardian guardian =
+        guardianRepository
+            .findById(guardianId)
             .orElseThrow(() -> new NotFoundException("guardian: ", guardianId, "존재하지 않는 보호자입니다."));
 
     guardian.setName(updateGuardian.getName());
@@ -86,7 +91,9 @@ public class GuardianService {
 
   @Transactional(readOnly = true)
   public GuardianDTO.CaregiverProfile inquiryCaregiverProfile(Long guardianId) {
-    Guardian guardian = guardianRepository.findById(guardianId)
+    Guardian guardian =
+        guardianRepository
+            .findById(guardianId)
             .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자입니다."));
 
     if (guardian.getCaregiver() == null) {

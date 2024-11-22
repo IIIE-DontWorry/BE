@@ -12,7 +12,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -43,8 +42,8 @@ public class Caregiver {
 
   @ColumnDefault(value = "0.0")
   private Double mannerScore;
-  
-  //읽기 전용
+
+  // 읽기 전용
   // ===연관관계===//
   @OneToOne(mappedBy = "caregiver", cascade = CascadeType.ALL)
   private Guardian guardian;

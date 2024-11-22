@@ -27,6 +27,12 @@ public class CaregiverDTO {
 
     @Schema(description = "Hospital", example = "연세세브란스")
     private String hospital;
+
+    @Schema(description = "Career histories")
+    private List<String> careerHistories; // 경력사항
+
+    @Schema(description = "Guardian unique code", example = "(보호자 유니크 코드를 확인한 뒤 넣어주세요.)")
+    private UUID guardianUniqueCode;
   }
 
   @Getter

@@ -13,7 +13,6 @@ import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 

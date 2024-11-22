@@ -12,7 +12,7 @@ import com.iiie.server.dto.PatientDTO.CreationPatient;
 import com.iiie.server.dto.UserDTO;
 import com.iiie.server.dto.UserDTO.Response;
 import com.iiie.server.exception.NotFoundException;
-import com.iiie.server.repository.CareGiverRepository;
+import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRepository;
 import com.iiie.server.security.JwtTokenProvider;
 import java.util.ArrayList;
@@ -32,12 +32,12 @@ public class UserService {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final GuardianRepository guardianRepository;
-  private final CareGiverRepository careGiverRepository;
+  private final CaregiverRepository careGiverRepository;
 
   public UserService(
       JwtTokenProvider jwtTokenProvider,
       GuardianRepository guardianRepository,
-      CareGiverRepository careGiverRepository) {
+      CaregiverRepository careGiverRepository) {
     this.jwtTokenProvider = jwtTokenProvider;
     this.guardianRepository = guardianRepository;
     this.careGiverRepository = careGiverRepository;

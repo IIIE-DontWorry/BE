@@ -10,9 +10,9 @@ import com.iiie.server.domain.MedicationCheck;
 import com.iiie.server.dto.CareReportDTO.CareReportPatchRequest;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse;
 import com.iiie.server.exception.NotFoundException;
-import com.iiie.server.repository.CareGiverRepository;
 import com.iiie.server.repository.CareReportRepository;
 import com.iiie.server.repository.CareScheduleRepository;
+import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRequestRepository;
 import com.iiie.server.repository.MedicationCheckRepository;
 import java.time.LocalDate;
@@ -26,14 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class CareReportService {
 
   private final CareReportRepository careReportRepository;
-  private final CareGiverRepository careGiverRepository;
+  private final CaregiverRepository careGiverRepository;
   private final MedicationCheckRepository medicationCheckRepository;
   private final GuardianRequestRepository guardianRequestRepository;
   private final CareScheduleRepository careScheduleRepository;
 
   public CareReportService(
       CareReportRepository careReportRepository,
-      CareGiverRepository careGiverRepository,
+      CaregiverRepository careGiverRepository,
       MedicationCheckRepository medicationCheckRepository,
       GuardianRequestRepository guardianRequestRepository,
       CareScheduleRepository careScheduleRepository) {
