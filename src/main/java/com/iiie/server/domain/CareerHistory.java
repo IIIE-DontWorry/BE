@@ -1,5 +1,6 @@
 package com.iiie.server.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,8 +31,8 @@ public class CareerHistory {
   private String description;
 
   // ===연관관계===//
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "caregiver_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "caregiver_id")
   private Caregiver caregiver;
 
   public void setCaregiver(Caregiver caregiver) {

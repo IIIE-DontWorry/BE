@@ -22,46 +22,48 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
-public class GuardianRequest {
+public class MedicationCheck {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "guardian_request_id")
+  @Column(name = "medication_checklist_id")
   private Long id;
 
   @Column(nullable = false)
-  private String request;
+  private String name;
 
-  @Column(nullable = true)
-  private Boolean isCheck;
+  private Boolean morningTakenStatus;
+
+  private Boolean afternoonTakenStatus;
+
+  private Boolean eveningTakenStatus;
 
   // ===연관관계===//
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "guardian_id")
-  private Guardian guardian;
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "patient_id")
+  private Patient patient;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "care_report_id")
   private CareReport careReport;
 
   // === 연관관계 보조 메서드 === //
-  public void setCareReport(CareReport careReport) {
-    if (!careReport.getGuardianRequests().contains(this)) {
+  public void setCareReportAndPatient(CareReport careReport, Patient patient) {
+    if (!careReport.getMedicationChecks().contains(this)) {
       this.careReport = careReport;
-      careReport.getGuardianRequests().add(this);
+      careReport.getMedicationChecks().add(this);
+    }
+
+    if (!patient.getMedicationChecks().contains(this)) {
+      this.patient = patient;
+      patient.getMedicationChecks().add(this);
     }
   }
 
-  public void setGuardian(Guardian guardian) {
-    if (!guardian.getGuardianRequests().contains(this)) {
-      this.guardian = guardian;
-      guardian.getGuardianRequests().add(this);
-    }
-  }
-
-  // === 보조 메서드 === //
-  public void updateFields(String request, Boolean isCheck) {
-    this.request = request;
-    this.isCheck = isCheck;
+  public void updateFields(
+      Boolean morningTakenStatus, Boolean afternoonTakenStatus, Boolean eveningTakenStatus) {
+    this.morningTakenStatus = morningTakenStatus;
+    this.afternoonTakenStatus = afternoonTakenStatus;
+    this.eveningTakenStatus = eveningTakenStatus;
   }
 }

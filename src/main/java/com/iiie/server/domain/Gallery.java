@@ -31,7 +31,7 @@ public class Gallery {
 
   // ===연관관계===//
   @OneToOne
-  @JoinColumn(name = "patient_id", nullable = false)
+  @JoinColumn(name = "patient_id")
   private Patient patient;
 
   @OneToMany(mappedBy = "gallery", cascade = CascadeType.ALL, orphanRemoval = true)

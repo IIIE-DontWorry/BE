@@ -3,6 +3,7 @@ package com.iiie.server.service;
 import com.iiie.server.domain.CareerHistory;
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.Guardian;
+import com.iiie.server.domain.MedicationCheck;
 import com.iiie.server.domain.Patient;
 import com.iiie.server.dto.CaregiverDTO.CreationCaregiver;
 import com.iiie.server.dto.GuardianAndPatientDTO.CreationRequest;
@@ -87,6 +88,7 @@ public class UserService {
             .careerHistories(careerHistories)
             .build();
 
+    guardian.setCaregiver(caregiver);
     caregiver.setPatient(guardian.getPatient());
     caregiver.addCareerHistories(careerHistories);
 
@@ -114,14 +116,29 @@ public class UserService {
   private Guardian registerGuardian(Long kakaoId, CreationRequest request) {
     CreationGuardian creationGuardian = request.getCreationGuardian();
     CreationPatient creationPatient = request.getCreationPatient();
+
+    List<MedicationCheck> medicationChecks =
+        creationPatient.getMedicationInfos().stream()
+            .map(
+                medicationInfo ->
+                    MedicationCheck.builder()
+                        .name(medicationInfo.getName())
+                        .morningTakenStatus(false)
+                        .afternoonTakenStatus(false)
+                        .eveningTakenStatus(false)
+                        .build())
+            .collect(Collectors.toCollection(ArrayList::new));
+
     Patient patient =
         Patient.builder()
             .name(creationPatient.getName())
             .age(creationPatient.getAge())
             .diseaseName(creationPatient.getDiseaseName())
             .hospitalName(creationPatient.getHospitalName())
+            .address(creationPatient.getAddress())
             .kakaoId(kakaoId)
             .build();
+    patient.addMedicationChecks(medicationChecks);
 
     Guardian guardian =
         Guardian.builder()
