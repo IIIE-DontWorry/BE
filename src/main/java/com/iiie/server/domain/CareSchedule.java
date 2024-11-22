@@ -1,6 +1,7 @@
 package com.iiie.server.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,8 +38,18 @@ public class CareSchedule {
   private LocalTime activityAt;
 
   // ===연관관계===//
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "care_report_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "care_report_id")
   @JsonIgnore
   private CareReport careReport;
+
+  // === 연관관계 보조 메서드 === //
+  public void setCareReport(CareReport careReport) {
+    this.careReport = careReport;
+  }
+
+  public void updateFields(String description, LocalTime activityAt) {
+    this.description = description;
+    this.activityAt = activityAt;
+  }
 }

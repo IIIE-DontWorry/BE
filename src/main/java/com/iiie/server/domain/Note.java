@@ -17,10 +17,10 @@ public class Note {
 
   // ===연관관계===//
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "caregiver_id", nullable = false)
+  @JoinColumn(name = "caregiver_id")
   private Caregiver caregiver;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "guardian_id", nullable = false)
+  @JoinColumn(name = "guardian_id")
   private Guardian guardian;
 }

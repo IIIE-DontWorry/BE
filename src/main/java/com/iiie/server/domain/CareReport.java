@@ -24,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Builder
 @Entity
@@ -38,8 +37,7 @@ public class CareReport {
   @Column(name = "care_report_id")
   private Long id;
 
-  @ColumnDefault(value = "")
-  private String specialNote;
+  @Column private String specialNote;
 
   @Column(nullable = false)
   private LocalDate createdAt;
@@ -67,8 +65,8 @@ public class CareReport {
   }
 
   // ===연관관계===/
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "caregiver_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "caregiver_id")
   private Caregiver caregiver;
 
   @Getter
@@ -76,7 +74,7 @@ public class CareReport {
       mappedBy = "careReport",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
-      fetch = FetchType.EAGER)
+      fetch = FetchType.LAZY)
   @Builder.Default
   @JsonIgnore
   private List<CareSchedule> careSchedules = new ArrayList<>();
@@ -85,64 +83,33 @@ public class CareReport {
       mappedBy = "careReport",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
-      fetch = FetchType.EAGER)
+      fetch = FetchType.LAZY)
   @Builder.Default
   @JsonIgnore
-  private List<MedicationCheckList> medicationCheckLists = new ArrayList<>();
+  private List<MedicationCheck> medicationChecks = new ArrayList<>();
 
   @OneToMany(
       mappedBy = "careReport",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
-      fetch = FetchType.EAGER)
+      fetch = FetchType.LAZY)
   @Builder.Default
   @JsonIgnore
   private List<GuardianRequest> guardianRequests = new ArrayList<>();
 
-  // ===연관관계 보조 메서드===//
-  public void updateSpecialNote(String specialNote) {
-    this.specialNote = specialNote;
-  }
-
-  public void addCareSchedule(CareSchedule careSchedule) {
-    this.careSchedules.add(careSchedule);
-    careSchedule.setCareReport(this);
-  }
-
-  public void addMedicationCheckList(MedicationCheckList medicationCheckList) {
-    this.medicationCheckLists.add(medicationCheckList);
-    medicationCheckList.setCareReport(this);
-  }
-
-  public void addGuardianRequest(GuardianRequest guardianRequest) {
-    this.guardianRequests.add(guardianRequest);
-    guardianRequest.setCareReport(this);
-  }
-
-  // ===보조 메서드===//
-  public void updateCareSchedules(List<CareSchedule> newCareSchedules) {
-    this.careSchedules.clear();
-
-    for (CareSchedule careSchedule : newCareSchedules) {
-      addCareSchedule(careSchedule);
-    }
-  }
-
-  public void updateMedicationCheckLists(List<MedicationCheckList> newMedicationCheckLists) {
-    this.medicationCheckLists.clear();
-    for (MedicationCheckList medicationCheckList : newMedicationCheckLists) {
-      addMedicationCheckList(medicationCheckList);
-    }
-  }
-
-  public void updateGuardianRequests(List<GuardianRequest> guardianRequests) {
-    this.guardianRequests.clear();
-    for (GuardianRequest guardianRequest : guardianRequests) {
-      addGuardianRequest(guardianRequest);
+  // === 연관관계 보조 메서드 === //
+  public void setCareSchedules(CareSchedule careSchedule) {
+    if (!this.careSchedules.contains(careSchedule)) {
+      this.careSchedules.add(careSchedule);
+      careSchedule.setCareReport(this);
     }
   }
 
   public void changePostedDate(String postedDate) {
     this.postedDate = LocalDate.parse(postedDate);
+  }
+
+  public void changeSpecialNote(String specialNote) {
+    this.specialNote = specialNote;
   }
 }

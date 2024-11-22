@@ -17,7 +17,6 @@ public class GuardianRequestDTO {
   public static class GuardianRequest {
     private Long id;
     private String request;
-    private Guardian guardian;
-    private CareReport careReport;
+    private Boolean isCheck;
   }
 }

@@ -117,14 +117,16 @@ public class UserService {
     CreationGuardian creationGuardian = request.getCreationGuardian();
     CreationPatient creationPatient = request.getCreationPatient();
 
-    List<MedicationCheck> medicationChecks = creationPatient.getMedicationInfos().stream()
-            .map(medicationInfo ->
+    List<MedicationCheck> medicationChecks =
+        creationPatient.getMedicationInfos().stream()
+            .map(
+                medicationInfo ->
                     MedicationCheck.builder()
-                            .name(medicationInfo.getName())
-                            .morningTakenStatus(false)
-                            .afternoonTakenStatus(false)
-                            .eveningTakenStatus(false)
-                            .build())
+                        .name(medicationInfo.getName())
+                        .morningTakenStatus(false)
+                        .afternoonTakenStatus(false)
+                        .eveningTakenStatus(false)
+                        .build())
             .collect(Collectors.toCollection(ArrayList::new));
 
     Patient patient =

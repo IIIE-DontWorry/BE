@@ -16,11 +16,11 @@ public class MedicationDTO {
   @Getter
   @Setter
   @AllArgsConstructor
-  public static class MedicationCheck {
+  public static class MedicationCheckRequest {
     private Long id;
     private String name;
-    private String morningTakenStatus;
-    private String afternoonTakenStatus;
-    private String eveningTakenStatus;
+    private Boolean morningTakenStatus;
+    private Boolean afternoonTakenStatus;
+    private Boolean eveningTakenStatus;
   }
 }

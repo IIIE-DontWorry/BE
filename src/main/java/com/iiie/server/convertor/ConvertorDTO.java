@@ -2,14 +2,14 @@ package com.iiie.server.convertor;
 
 import com.iiie.server.domain.CareReport;
 import com.iiie.server.domain.CareSchedule;
-import com.iiie.server.domain.MedicationCheckList;
+import com.iiie.server.domain.MedicationCheck;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.CareScheduleResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.GuardianResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.MedicationCheckResponse;
 import java.util.List;
 
-public class Convertor {
+public class ConvertorDTO {
 
   public static CareReportResponse toCareReportResponse(CareReport careReport) {
     return CareReportResponse.builder()
@@ -17,7 +17,8 @@ public class Convertor {
         .careScheduleResponses(toCareScheduleResponse(careReport.getCareSchedules()))
         .specialNote(careReport.getSpecialNote())
         .guardianResponses(toGuardianResponse(careReport.getGuardianRequests()))
-        .medicationCheckResponse(toMedicationCheckResponse(careReport.getMedicationCheckLists()))
+        .medicationCheckResponse(
+            toMedicationCheckResponse(careReport.getCaregiver().getPatient().getMedicationChecks()))
         .createdAt(careReport.getCreatedAt())
         .updatedAt(careReport.getUpdatedAt())
         .postedDate(careReport.getPostedDate())
@@ -25,8 +26,8 @@ public class Convertor {
   }
 
   private static List<MedicationCheckResponse> toMedicationCheckResponse(
-      List<MedicationCheckList> medicationCheckLists) {
-    return medicationCheckLists.stream()
+      List<MedicationCheck> medicationChecks) {
+    return medicationChecks.stream()
         .map(
             medication ->
                 MedicationCheckResponse.builder()

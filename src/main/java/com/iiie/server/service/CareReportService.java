@@ -1,17 +1,21 @@
 package com.iiie.server.service;
 
+import com.iiie.server.convertor.ConvertorDTO;
+import com.iiie.server.convertor.EntityUpdater;
 import com.iiie.server.domain.CareReport;
 import com.iiie.server.domain.CareSchedule;
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.GuardianRequest;
-import com.iiie.server.domain.MedicationCheckList;
+import com.iiie.server.domain.MedicationCheck;
 import com.iiie.server.dto.CareReportDTO.CareReportPatchRequest;
+import com.iiie.server.dto.CareReportDTO.CareReportResponse;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.CareGiverRepository;
 import com.iiie.server.repository.CareReportRepository;
-import com.iiie.server.type.TakenStatus;
+import com.iiie.server.repository.CareScheduleRepository;
+import com.iiie.server.repository.GuardianRequestRepository;
+import com.iiie.server.repository.MedicationCheckRepository;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -23,11 +27,21 @@ public class CareReportService {
 
   private final CareReportRepository careReportRepository;
   private final CareGiverRepository careGiverRepository;
+  private final MedicationCheckRepository medicationCheckRepository;
+  private final GuardianRequestRepository guardianRequestRepository;
+  private final CareScheduleRepository careScheduleRepository;
 
   public CareReportService(
-      CareReportRepository careReportRepository, CareGiverRepository careGiverRepository) {
+      CareReportRepository careReportRepository,
+      CareGiverRepository careGiverRepository,
+      MedicationCheckRepository medicationCheckRepository,
+      GuardianRequestRepository guardianRequestRepository,
+      CareScheduleRepository careScheduleRepository) {
     this.careReportRepository = careReportRepository;
     this.careGiverRepository = careGiverRepository;
+    this.medicationCheckRepository = medicationCheckRepository;
+    this.guardianRequestRepository = guardianRequestRepository;
+    this.careScheduleRepository = careScheduleRepository;
   }
 
   /**
@@ -40,7 +54,7 @@ public class CareReportService {
    * @throws NotFoundException 간병인을 찾을 수 없는 경우 발생
    */
   @Transactional
-  public CareReport initCareReport(Long careGiverId) {
+  public CareReportResponse initCareReport(Long careGiverId) {
     Caregiver caregiver =
         careGiverRepository
             .findById(careGiverId)
@@ -51,20 +65,26 @@ public class CareReportService {
         careReportRepository.findByCaregiverIdAndPostedDate(careGiverId, today);
 
     if (existingReport.isPresent()) {
-      return existingReport.get();
+      return ConvertorDTO.toCareReportResponse(existingReport.get());
     }
 
     CareReport careReport = CareReport.builder().caregiver(caregiver).specialNote("").build();
 
-    return careReportRepository.save(careReport);
+    CareReportResponse result =
+        ConvertorDTO.toCareReportResponse(careReportRepository.save(careReport));
+
+    return result;
   }
 
-  public CareReport getCareReportDetail(Long careReportId) {
+  public CareReportResponse getCareReportDetail(Long careReportId) {
 
-    return careReportRepository
-        .findById(careReportId)
-        .orElseThrow(
-            () -> new NotFoundException("careReport", careReportId, "존재하지 않는 간병 보고서 입니다."));
+    CareReport careReport =
+        careReportRepository
+            .findById(careReportId)
+            .orElseThrow(
+                () -> new NotFoundException("careReport", careReportId, "존재하지 않는 간병 보고서 입니다."));
+
+    return ConvertorDTO.toCareReportResponse(careReport);
   }
 
   @Transactional
@@ -78,69 +98,53 @@ public class CareReportService {
   }
 
   @Transactional
-  public CareReport patchCareReport(Long careReportId, CareReportPatchRequest request) {
-    return careReportRepository
-        .findById(careReportId)
-        .map(
-            careReport -> {
-              if (request.getPostedDate() != null) {
-                careReport.changePostedDate(request.getPostedDate());
-              }
+  public CareReportResponse patchCareReport(Long careGiverId, CareReportPatchRequest request) {
+    final LocalDate postedDate = LocalDate.parse(request.getPostedDate());
+    CareReport careReport =
+        careReportRepository
+            .findByCaregiverIdAndPostedDate(careGiverId, postedDate)
+            .orElseThrow(() -> new NotFoundException("care_report", null, "존재하지 않는 간병 보고서입니다."));
 
-              if (request.getSpecialNote() != null) {
-                careReport.updateSpecialNote(request.getSpecialNote());
-              }
+    if (!request.getCareScheduleRequests().isEmpty()) {
+      // 시간에 따른 일정 엔티티 업데이트
+      List<CareSchedule> careScheduleList =
+          EntityUpdater.toCareScheduleList(
+              request.getCareScheduleRequests(), careScheduleRepository);
+      careScheduleList.forEach(careReport::setCareSchedules); // 연관관계 매핑
+    }
 
-              if (request.getCareScheduleRequests() != null) {
-                List<CareSchedule> newSchedule =
-                    request.getCareScheduleRequests().stream()
-                        .map(
-                            scheduleRequest ->
-                                CareSchedule.builder()
-                                    .activityAt(
-                                        LocalTime.of(
-                                            scheduleRequest.getHour(), scheduleRequest.getMinute()))
-                                    .description(scheduleRequest.getDescription())
-                                    .build())
-                        .toList();
-                careReport.updateCareSchedules(newSchedule);
-              }
+    if (!request.getMedicationCheckRequests().isEmpty()) {
+      // 투약 리스트 엔티티 업데이트
+      List<MedicationCheck> medicationCheckList =
+          EntityUpdater.toMedicationCheckList(
+              request.getMedicationCheckRequests(), medicationCheckRepository);
+      medicationCheckList.forEach(
+          medicationCheck ->
+              medicationCheck.setCareReportAndPatient(
+                  careReport, careReport.getCaregiver().getPatient()));
+    }
 
-              if (request.getMedicationChecks() != null) {
-                List<MedicationCheckList> newCheckList =
-                    request.getMedicationChecks().stream()
-                        .map(
-                            medicationCheck ->
-                                MedicationCheckList.builder()
-                                    .name(medicationCheck.getName())
-                                    .morningTakenStatus(
-                                        TakenStatus.fromString(
-                                            medicationCheck.getMorningTakenStatus()))
-                                    .afternoonTakenStatus(
-                                        TakenStatus.fromString(
-                                            medicationCheck.getAfternoonTakenStatus()))
-                                    .eveningTakenStatus(
-                                        TakenStatus.fromString(
-                                            medicationCheck.getEveningTakenStatus()))
-                                    .build())
-                        .toList();
-                careReport.updateMedicationCheckLists(newCheckList);
-              }
+    if (!request.getGuardianRequests().isEmpty()) {
+      // 보호자 요청사항 엔티티 업데이트
+      List<GuardianRequest> guardianRequestList =
+          EntityUpdater.toGuardianRequestList(
+              request.getGuardianRequests(), guardianRequestRepository);
+      guardianRequestList.forEach(
+          guardianRequest -> {
+            guardianRequest.setGuardian(careReport.getCaregiver().getGuardian());
+            guardianRequest.setCareReport(careReport);
+          });
+    }
 
-              if (request.getGuardianRequests() != null) {
-                List<GuardianRequest> guardianRequests =
-                    request.getGuardianRequests().stream()
-                        .map(
-                            guardianRequest ->
-                                GuardianRequest.builder()
-                                    .request(guardianRequest.getRequest())
-                                    .build())
-                        .toList();
-                careReport.updateGuardianRequests(guardianRequests);
-              }
-              return careReport;
-            })
-        .orElseThrow(
-            () -> new NotFoundException("careReport", careReportId, "존재하지 않는 간병 보고서 입니다."));
+    // 간병보고서 엔티티 업데이트 및 저장 및 반환 with specialNote, PostedDate
+    if (!request.getSpecialNote().isEmpty()) {
+      careReport.changePostedDate(request.getPostedDate());
+    }
+
+    if (!request.getPostedDate().isEmpty()) {
+      careReport.changeSpecialNote(request.getSpecialNote());
+    }
+
+    return ConvertorDTO.toCareReportResponse(careReport);
   }
 }

@@ -22,7 +22,7 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
-public class MedicationCheckList {
+public class MedicationCheck {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +40,7 @@ public class MedicationCheckList {
 
   // ===연관관계===//
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "patient_id", nullable = false)
+  @JoinColumn(name = "patient_id")
   private Patient patient;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -49,26 +49,21 @@ public class MedicationCheckList {
 
   // === 연관관계 보조 메서드 === //
   public void setCareReportAndPatient(CareReport careReport, Patient patient) {
-    if (!careReport.getMedicationCheckLists().contains(this)) {
+    if (!careReport.getMedicationChecks().contains(this)) {
       this.careReport = careReport;
-      careReport.getMedicationCheckLists().add(this);
+      careReport.getMedicationChecks().add(this);
     }
 
-    if (!patient.getMedicationCheckLists().contains(this)) {
+    if (!patient.getMedicationChecks().contains(this)) {
       this.patient = patient;
-      patient.getMedicationCheckLists().add(this);
+      patient.getMedicationChecks().add(this);
     }
   }
 
-  // === 보조 메서드 === //
-  public void changeMorningTakenStatus(Boolean flag) {
-    this.morningTakenStatus = flag;
+  public void updateFields(
+      Boolean morningTakenStatus, Boolean afternoonTakenStatus, Boolean eveningTakenStatus) {
+    this.morningTakenStatus = morningTakenStatus;
+    this.afternoonTakenStatus = afternoonTakenStatus;
+    this.eveningTakenStatus = eveningTakenStatus;
   }
-    public void changeAfternoonTakenStatus(Boolean flag) {
-    this.afternoonTakenStatus = flag;
-  }
-    public void changeEveningTakenStatus(Boolean flag) {
-    this.eveningTakenStatus = flag;
-  }
-
 }
