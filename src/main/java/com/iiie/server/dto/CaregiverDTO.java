@@ -14,6 +14,7 @@ public class CaregiverDTO {
   private String hospital;
   private Long kakaoId;
   private Double mannerScore;
+  private String patientName;
 
   @Getter
   @Setter
@@ -26,11 +27,30 @@ public class CaregiverDTO {
 
     @Schema(description = "Hospital", example = "연세세브란스")
     private String hospital;
+  }
 
-    @Schema(description = "Career histories")
-    List<String> careerHistories; // 경력사항
+  @Getter
+  @Setter
+  public static class InquiryCaregiver {
+    private String name;
+    private String phone;
+    private String hospital;
+    private String patientName;
+  }
 
-    @Schema(description = "Guardian unique code", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
-    private UUID guardianUniqueCode;
+  @Getter
+  @Setter
+  public static class UpdateCaregiver {
+    private String name;
+    private String phone;
+    private String hospital;
+  }
+
+  @Getter
+  @Setter
+  public static class GuardianProfile {
+    private String name;
+    private String phone;
+    private String address;
   }
 }
