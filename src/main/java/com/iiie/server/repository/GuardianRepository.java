@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GuardianRepository extends JpaRepository<Guardian, Long> {
 
-    Optional<Guardian> findByUniqueCode(UUID guardianUniqueCode);
+  Optional<Guardian> findByUniqueCode(UUID guardianUniqueCode);
+
+  Optional<Guardian> findByKakaoId(Long kakaoId);
 }
