@@ -47,13 +47,12 @@ public class Caregiver {
   private Double mannerScore;
 
   // ===연관관계===//
-  @OneToOne
-  @JoinColumn(name = "patient_id", unique = true)
-  private Patient patient;
+  @OneToOne(mappedBy = "caregiver", cascade = CascadeType.ALL)
+  private Guardian guardian;
 
   @OneToOne
-  @JoinColumn(name="guardian_id", unique = true)
-  private Guardian guardian;
+  @JoinColumn(name = "patient_id")
+  private Patient patient;
 
   @OneToMany(mappedBy = "caregiver", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
@@ -68,16 +67,5 @@ public class Caregiver {
   public void addCareerHistories(List<CareerHistory> careerHistories) {
     this.careerHistories.clear();
     this.careerHistories.addAll(careerHistories);
-  }
-
-  public void setGuardian(Guardian guardian) {
-    this.guardian = guardian;
-    if (guardian != null) {
-      guardian.setCaregiver(this);
-    }
-  }
-
-  public Guardian getGuardian() {
-    return this.guardian;
   }
 }

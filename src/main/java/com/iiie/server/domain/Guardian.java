@@ -47,12 +47,12 @@ public class Guardian {
   private UUID uniqueCode;
 
   // ===연관관계===//
-  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "caregiver_id", unique = true)
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "caregiver_id", nullable = true)
   private Caregiver caregiver;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "patient_id", unique = true)
+  @JoinColumn(name = "patient_id")
   private Patient patient;
 
   // ===연관관계 보조 메서드===//
@@ -62,12 +62,5 @@ public class Guardian {
 
   public void setCaregiver(Caregiver caregiver) {
     this.caregiver = caregiver;
-    if (caregiver != null) {
-      caregiver.setGuardian(this);
-    }
-  }
-
-  public Caregiver getCaregiver() {
-    return this.caregiver;
   }
 }
