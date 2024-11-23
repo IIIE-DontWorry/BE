@@ -3,6 +3,7 @@ package com.iiie.server.service;
 import com.iiie.server.domain.CareerHistory;
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.Guardian;
+import com.iiie.server.domain.MedicationCheck;
 import com.iiie.server.domain.Patient;
 import com.iiie.server.dto.CaregiverDTO.CreationCaregiver;
 import com.iiie.server.dto.GuardianAndPatientDTO.CreationRequest;
@@ -11,7 +12,7 @@ import com.iiie.server.dto.PatientDTO.CreationPatient;
 import com.iiie.server.dto.UserDTO;
 import com.iiie.server.dto.UserDTO.Response;
 import com.iiie.server.exception.NotFoundException;
-import com.iiie.server.repository.CareGiverRepository;
+import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRepository;
 import com.iiie.server.security.JwtTokenProvider;
 import java.util.ArrayList;
@@ -31,12 +32,12 @@ public class UserService {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final GuardianRepository guardianRepository;
-  private final CareGiverRepository careGiverRepository;
+  private final CaregiverRepository careGiverRepository;
 
   public UserService(
       JwtTokenProvider jwtTokenProvider,
       GuardianRepository guardianRepository,
-      CareGiverRepository careGiverRepository) {
+      CaregiverRepository careGiverRepository) {
     this.jwtTokenProvider = jwtTokenProvider;
     this.guardianRepository = guardianRepository;
     this.careGiverRepository = careGiverRepository;
@@ -87,6 +88,7 @@ public class UserService {
             .careerHistories(careerHistories)
             .build();
 
+    guardian.setCaregiver(caregiver);
     caregiver.setPatient(guardian.getPatient());
     caregiver.addCareerHistories(careerHistories);
 
@@ -114,14 +116,29 @@ public class UserService {
   private Guardian registerGuardian(Long kakaoId, CreationRequest request) {
     CreationGuardian creationGuardian = request.getCreationGuardian();
     CreationPatient creationPatient = request.getCreationPatient();
+
+    List<MedicationCheck> medicationChecks =
+        creationPatient.getMedicationInfos().stream()
+            .map(
+                medicationInfo ->
+                    MedicationCheck.builder()
+                        .name(medicationInfo.getName())
+                        .morningTakenStatus(false)
+                        .afternoonTakenStatus(false)
+                        .eveningTakenStatus(false)
+                        .build())
+            .collect(Collectors.toCollection(ArrayList::new));
+
     Patient patient =
         Patient.builder()
             .name(creationPatient.getName())
             .age(creationPatient.getAge())
             .diseaseName(creationPatient.getDiseaseName())
             .hospitalName(creationPatient.getHospitalName())
+            .address(creationPatient.getAddress())
             .kakaoId(kakaoId)
             .build();
+    patient.addMedicationChecks(medicationChecks);
 
     Guardian guardian =
         Guardian.builder()

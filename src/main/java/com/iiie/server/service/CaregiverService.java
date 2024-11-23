@@ -1,11 +1,12 @@
 package com.iiie.server.service;
 
+import com.iiie.server.domain.CareerHistory;
 import com.iiie.server.domain.Caregiver;
-import com.iiie.server.domain.Patient;
+import com.iiie.server.domain.Guardian;
 import com.iiie.server.dto.CaregiverDTO;
-import com.iiie.server.repository.CareGiverRepository;
-import com.iiie.server.repository.GuardianRepository;
 import com.iiie.server.exception.NotFoundException;
+import com.iiie.server.repository.CaregiverRepository;
+import com.iiie.server.repository.GuardianRepository;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -16,15 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class CaregiverService {
 
   private final GuardianRepository guardianRepository;
-  private final CareGiverRepository careGiverRepository;
+  private final CaregiverRepository caregiverRepository;
 
   public CaregiverService(
-      GuardianRepository guardianRepository, CareGiverRepository careGiverRepository) {
+      GuardianRepository guardianRepository, CaregiverRepository caregiverRepository) {
     this.guardianRepository = guardianRepository;
-    this.careGiverRepository = careGiverRepository;
+    this.caregiverRepository = caregiverRepository;
   }
-  
-    public Caregiver createCaregiver(
+
+  public Caregiver createCaregiver(
       String name,
       String phone,
       String hospital,
@@ -58,13 +59,16 @@ public class CaregiverService {
     caregiver.setPatient(guardian.getPatient());
     caregiver.addCareerHistories(careerHistories);
 
-    return careGiverRepository.save(caregiver);
+    return caregiverRepository.save(caregiver);
   }
 
   @Transactional(readOnly = true)
   public CaregiverDTO.InquiryCaregiver inquiryInfo(Long caregiverId) {
-    Caregiver caregiver = caregiverRepository.findById(caregiverId)
-            .orElseThrow(() -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
+    Caregiver caregiver =
+        caregiverRepository
+            .findById(caregiverId)
+            .orElseThrow(
+                () -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
 
     CaregiverDTO.InquiryCaregiver inquiryCaregiver = new CaregiverDTO.InquiryCaregiver();
     inquiryCaregiver.setName(caregiver.getName());
@@ -76,9 +80,13 @@ public class CaregiverService {
   }
 
   @Transactional
-  public CaregiverDTO.UpdateCaregiver updateInfo(Long caregiverId, CaregiverDTO.UpdateCaregiver updateCaregiver) {
-    Caregiver caregiver = caregiverRepository.findById(caregiverId)
-            .orElseThrow(() -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
+  public CaregiverDTO.UpdateCaregiver updateInfo(
+      Long caregiverId, CaregiverDTO.UpdateCaregiver updateCaregiver) {
+    Caregiver caregiver =
+        caregiverRepository
+            .findById(caregiverId)
+            .orElseThrow(
+                () -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
 
     caregiver.setName(updateCaregiver.getName());
     caregiver.setPhone(updateCaregiver.getPhone());
@@ -95,7 +103,9 @@ public class CaregiverService {
 
   @Transactional(readOnly = true)
   public CaregiverDTO.GuardianProfile inquiryGuardianProfile(Long caregiverId) {
-    Caregiver caregiver = caregiverRepository.findById(caregiverId)
+    Caregiver caregiver =
+        caregiverRepository
+            .findById(caregiverId)
             .orElseThrow(() -> new NotFoundException("caregiver", caregiverId, "존재하지 않는 간병인입니다."));
 
     if (caregiver.getGuardian() == null) {
