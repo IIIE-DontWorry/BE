@@ -25,27 +25,27 @@ public class NoteController {
     @Operation(summary = "쪽지 조회", description = "작성된 쪽지 목록을 모두 조회합니다.")
     public SuccessResponse<List<NoteDTO.NoteResponse>> inquiryNotes(@RequestBody NoteDTO.InquiryRequest inquiryRequest) {
         List<NoteDTO.NoteResponse> messages = noteService.inquiryNotes(inquiryRequest);
-        return new SuccessResponse<>("success", "쪽지 목록 조회 완료", messages);
+        return new SuccessResponse<>("쪽지 목록 조회 완료", messages);
     }
     
     @GetMapping("/latest")
     @Operation(summary = "최근 쪽지 조회", description = "가장 최근에 작성된 쪽지 3개를 조회합니다.")
     public SuccessResponse<List<NoteDTO.NoteResponse>> getLatestNotes() {
         List<NoteDTO.NoteResponse> notes = noteService.getLatestNotes();
-        return new SuccessResponse<>("success", "최근 쪽지 조회 완료", notes);
+        return new SuccessResponse<>("최근 쪽지 조회 완료", notes);
     }
 
     @PostMapping("/add")
     @Operation(summary = "쪽지 추가", description = "쪽지 내용, 작성자, 날짜를 저장합니다.")
     public SuccessResponse<NoteDTO.NoteResponse> addNote(@RequestBody NoteDTO.AddRequest addRequest) {
         NoteDTO.NoteResponse addNote = noteService.addNote(addRequest);
-        return new SuccessResponse<>("success", "쪽지 추가 완료", addNote);
+        return new SuccessResponse<>("쪽지 추가 완료", addNote);
     }
 
     @DeleteMapping("/delete")
     @Operation(summary = "쪽지 삭제", description = "선택한 쪽지를 삭제합니다.")
     public SuccessResponse<Void> deleteNote(@RequestBody NoteDTO.DeleteNote deleteNote) {
         noteService.deleteNote(deleteNote.getId());
-        return new SuccessResponse<>("success", "쪽지 삭제 완료", null);
+        return new SuccessResponse<>("쪽지 삭제 완료", null);
     }
 }
