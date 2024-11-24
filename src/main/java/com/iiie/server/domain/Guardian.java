@@ -48,9 +48,8 @@ public class Guardian {
   private UUID uniqueCode;
 
   // ===연관관계===//
-  @OneToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "caregiver_id", nullable = true)
-
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "caregiver_id")
   private Caregiver caregiver;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
