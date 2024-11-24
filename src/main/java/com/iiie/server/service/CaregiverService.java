@@ -101,6 +101,20 @@ public class CaregiverService {
     return updatedCaregiver;
   }
 
+  @Transactional
+  public void deleteCaregiver(Long caregiverId) {
+    Caregiver caregiver = caregiverRepository.findById(caregiverId)
+            .orElseThrow(() -> new NotFoundException("caregiver", caregiverId, "존재하지 않는 간병인입니다."));
+
+    Guardian guardian = caregiver.getGuardian();
+    if (guardian != null) {
+      guardian.setCaregiver(null);
+      guardianRepository.save(guardian); // 보호자의 caregiver 참조를 제거
+    }
+
+    caregiverRepository.delete(caregiver);
+  }
+
   @Transactional(readOnly = true)
   public CaregiverDTO.GuardianProfile inquiryGuardianProfile(Long caregiverId) {
     Caregiver caregiver =

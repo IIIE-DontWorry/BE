@@ -45,14 +45,14 @@ public class Caregiver {
 
   // 읽기 전용
   // ===연관관계===//
-  @OneToOne(mappedBy = "caregiver", cascade = CascadeType.ALL)
+  @OneToOne(mappedBy = "caregiver")
   private Guardian guardian;
 
   @OneToOne
   @JoinColumn(name = "patient_id")
   private Patient patient;
 
-  @OneToMany(mappedBy = "caregiver", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "caregiver", cascade = CascadeType.ALL)
   @Builder.Default
   @JsonIgnore
   private List<CareerHistory> careerHistories = new ArrayList<>();
