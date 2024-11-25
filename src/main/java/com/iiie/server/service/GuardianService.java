@@ -92,9 +92,9 @@ public class GuardianService {
   @Transactional
   public void deleteGuardian(Long guardianId) {
     Guardian guardian =
-            guardianRepository
-                    .findById(guardianId)
-                    .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자입니다."));
+        guardianRepository
+            .findById(guardianId)
+            .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자입니다."));
 
     // 간병인과의 참조를 제거
     if (guardian.getCaregiver() != null) {

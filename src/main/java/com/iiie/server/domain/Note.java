@@ -30,7 +30,7 @@ public class Note {
   @Column(name = "note_id")
   private Long id;
 
-  @Column(nullable=false)
+  @Column(nullable = false)
   private String createdBy;
 
   @Column(nullable = false)
@@ -53,5 +53,4 @@ public class Note {
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "guardian_id", nullable = false)
   private Guardian guardian;
-
 }

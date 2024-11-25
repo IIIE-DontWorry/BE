@@ -103,7 +103,9 @@ public class CaregiverService {
 
   @Transactional
   public void deleteCaregiver(Long caregiverId) {
-    Caregiver caregiver = caregiverRepository.findById(caregiverId)
+    Caregiver caregiver =
+        caregiverRepository
+            .findById(caregiverId)
             .orElseThrow(() -> new NotFoundException("caregiver", caregiverId, "존재하지 않는 간병인입니다."));
 
     Guardian guardian = caregiver.getGuardian();
