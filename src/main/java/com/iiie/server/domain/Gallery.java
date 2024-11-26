@@ -1,14 +1,10 @@
 package com.iiie.server.domain;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -28,6 +24,22 @@ public class Gallery {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "gallery_id")
   private Long id;
+
+  @Column(nullable=false)
+  private String createdBy;
+
+  @Column(nullable = false)
+  private LocalDate createdAt;
+
+  @Column(columnDefinition = "TEXT", nullable = false)
+  private String title;
+
+  // ==시간관련==//
+  @PrePersist
+  private void prePersist() {
+    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+    this.createdAt = nowInKorea.toLocalDate();
+  }
 
   // ===연관관계===//
   @OneToOne
