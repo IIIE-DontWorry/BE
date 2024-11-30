@@ -32,7 +32,7 @@ public class Image {
   private String imageUrl;
 
   // ===연관관계===//
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "gallery_id")
   private Gallery gallery;
 }

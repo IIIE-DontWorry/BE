@@ -45,19 +45,19 @@ public class GalleryService {
     }
 
     @Transactional(readOnly = true)
-    public List<GalleryDTO.GetImageResponse> getImages(GalleryDTO.GetImageRequest getImageRequest) {
+    public List<GalleryDTO.GetGalleryResponse> getImages(GalleryDTO.GetGalleryRequest getGalleryRequest) {
         Patient patient = null;
 
         // 간병인일 경우
-        if (getImageRequest.getCaregiverId() != null) {
-            Caregiver caregiver = caregiverRepository.findById(getImageRequest.getCaregiverId())
-                    .orElseThrow(() -> new NotFoundException("caregiver", getImageRequest.getCaregiverId(), "존재하지 않는 간병인입니다."));
+        if (getGalleryRequest.getCaregiverId() != null) {
+            Caregiver caregiver = caregiverRepository.findById(getGalleryRequest.getCaregiverId())
+                    .orElseThrow(() -> new NotFoundException("caregiver", getGalleryRequest.getCaregiverId(), "존재하지 않는 간병인입니다."));
             patient = caregiver.getPatient();
         }
         // 보호자일 경우
-        else if (getImageRequest.getGuardianId() != null) {
-            Guardian guardian = guardianRepository.findById(getImageRequest.getGuardianId())
-                    .orElseThrow(() -> new NotFoundException("guardian", getImageRequest.getGuardianId(), "존재하지 않는 보호자입니다."));
+        else if (getGalleryRequest.getGuardianId() != null) {
+            Guardian guardian = guardianRepository.findById(getGalleryRequest.getGuardianId())
+                    .orElseThrow(() -> new NotFoundException("guardian", getGalleryRequest.getGuardianId(), "존재하지 않는 보호자입니다."));
             patient = guardian.getPatient();
         } else {
             throw new IllegalArgumentException("Caregiver ID나 Guardian ID 중 하나를 제공해야 합니다.");
@@ -67,7 +67,7 @@ public class GalleryService {
         List<Gallery> galleries = patient.getGalleries();
 
         // 갤러리와 이미지 정보를 DTO로 변환
-        List<GalleryDTO.GetImageResponse> responses = galleries.stream().map(gallery -> {
+        List<GalleryDTO.GetGalleryResponse> responses = galleries.stream().map(gallery -> {
             List<GalleryDTO.ImageInfo> imagesInfo = gallery.getImages().stream()
                     .map(image -> GalleryDTO.ImageInfo.builder()
                             .imageId(image.getId())
@@ -75,7 +75,7 @@ public class GalleryService {
                             .build())
                     .collect(Collectors.toList());
 
-            return GalleryDTO.GetImageResponse.builder()
+            return GalleryDTO.GetGalleryResponse.builder()
                     .galleryId(gallery.getId())
                     .createdBy(gallery.getCreatedBy())
                     .createdAt(gallery.getCreatedAt())
@@ -87,34 +87,81 @@ public class GalleryService {
         return responses;
     }
 
+    public List<GalleryDTO.GetGalleryResponse> getRecentGalleries(GalleryDTO.GetGalleryRequest getGalleryRequest) {
+        Patient patient = null;
+
+        // 간병인일 경우
+        if (getGalleryRequest.getCaregiverId() != null) {
+            Caregiver caregiver = caregiverRepository.findById(getGalleryRequest.getCaregiverId())
+                    .orElseThrow(() -> new NotFoundException("caregiver", getGalleryRequest.getCaregiverId(), "존재하지 않는 간병인입니다."));
+            patient = caregiver.getPatient();
+        }
+        // 보호자일 경우
+        else if (getGalleryRequest.getGuardianId() != null) {
+            Guardian guardian = guardianRepository.findById(getGalleryRequest.getGuardianId())
+                    .orElseThrow(() -> new NotFoundException("guardian", getGalleryRequest.getGuardianId(), "존재하지 않는 보호자입니다."));
+            patient = guardian.getPatient();
+        } else {
+            throw new IllegalArgumentException("Caregiver ID나 Guardian ID 중 하나를 제공해야 합니다.");
+        }
+
+        // 환자의 최근 갤러리 3개를 가져옵니다.
+        List<Gallery> galleries = galleryRepository.findTop3ByPatientIdOrderByCreatedAtDesc(patient.getId());
+
+        if (galleries.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 갤러리와 이미지 정보를 DTO로 변환합니다.
+        List<GalleryDTO.GetGalleryResponse> responses = galleries.stream().map(gallery -> {
+            List<GalleryDTO.ImageInfo> imagesInfo = gallery.getImages().stream()
+                    .map(image -> GalleryDTO.ImageInfo.builder()
+                            .imageId(image.getId())
+                            .imageUrl(image.getImageUrl())
+                            .build())
+                    .collect(Collectors.toList());
+
+            return GalleryDTO.GetGalleryResponse.builder()
+                    .galleryId(gallery.getId())
+                    .createdBy(gallery.getCreatedBy())
+                    .createdAt(gallery.getCreatedAt())
+                    .title(gallery.getTitle())
+                    .images(imagesInfo)
+                    .build();
+        }).collect(Collectors.toList());
+
+        return responses;
+    }
+
+
     @Transactional
-    public void uploadImages(GalleryDTO.UploadImages uploadImages) {
+    public void uploadImages(GalleryDTO.UploadGallery uploadGallery) {
         Patient patient = null;
         Gallery gallery = null;
         
         // 간병인일 경우
-        if (uploadImages.getCaregiverId() != null) {
-            Caregiver caregiver = caregiverRepository.findById(uploadImages.getCaregiverId())
-                    .orElseThrow(() -> new NotFoundException("caregiver", uploadImages.getCaregiverId(), "존재하지 않는 간병인입니다."));
+        if (uploadGallery.getCaregiverId() != null) {
+            Caregiver caregiver = caregiverRepository.findById(uploadGallery.getCaregiverId())
+                    .orElseThrow(() -> new NotFoundException("caregiver", uploadGallery.getCaregiverId(), "존재하지 않는 간병인입니다."));
             patient = caregiver.getPatient();
 
             // 갤러리 엔티티 생성
             gallery = Gallery.builder()
-                    .createdBy(uploadImages.getCaregiverId())
-                    .title(uploadImages.getTitle())
+                    .createdBy(uploadGallery.getCaregiverId())
+                    .title(uploadGallery.getTitle())
                     .patient(patient)
                     .build();
         }
         // 보호자일 경우
-        else if (uploadImages.getGuardianId() != null) {
-            Guardian guardian = guardianRepository.findById(uploadImages.getGuardianId())
-                    .orElseThrow(() -> new NotFoundException("guardian", uploadImages.getGuardianId(), "존재하지 않는 보호자입니다."));
+        else if (uploadGallery.getGuardianId() != null) {
+            Guardian guardian = guardianRepository.findById(uploadGallery.getGuardianId())
+                    .orElseThrow(() -> new NotFoundException("guardian", uploadGallery.getGuardianId(), "존재하지 않는 보호자입니다."));
             patient = guardian.getPatient();
 
             // 갤러리 엔티티 생성
             gallery = Gallery.builder()
-                    .createdBy(uploadImages.getGuardianId())
-                    .title(uploadImages.getTitle())
+                    .createdBy(uploadGallery.getGuardianId())
+                    .title(uploadGallery.getTitle())
                     .patient(patient)
                     .build();
         } else {
@@ -123,7 +170,7 @@ public class GalleryService {
 
         // S3에 이미지 업로드 및 이미지 엔티티 생성
         List<Image> imageEntities = new ArrayList<>();
-        for (MultipartFile file : uploadImages.getImages()) {
+        for (MultipartFile file : uploadGallery.getImages()) {
             try (InputStream inputStream = file.getInputStream()) {
                 String fileName = file.getOriginalFilename();
                 long contentLength = file.getSize();

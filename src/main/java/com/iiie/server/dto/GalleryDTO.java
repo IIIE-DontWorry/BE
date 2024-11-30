@@ -16,7 +16,7 @@ public class GalleryDTO {
 
     @Getter
     @Setter
-    public static class GetImageRequest {
+    public static class GetGalleryRequest {
         private Long caregiverId;
         private Long guardianId;
     }
@@ -24,7 +24,7 @@ public class GalleryDTO {
     @Getter
     @Setter
     @Builder
-    public static class GetImageResponse {
+    public static class GetGalleryResponse {
         private Long galleryId;
         private Long createdBy;
         private LocalDate createdAt;
@@ -42,7 +42,7 @@ public class GalleryDTO {
 
     @Getter
     @Setter
-    public static class UploadImages{
+    public static class UploadGallery {
         private Long caregiverId;
         private Long guardianId;
         private List<MultipartFile> images;
