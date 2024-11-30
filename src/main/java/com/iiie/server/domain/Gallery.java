@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Builder
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 public class Gallery {
 
   @Id
@@ -26,7 +28,7 @@ public class Gallery {
   private Long id;
 
   @Column(nullable=false)
-  private String createdBy;
+  private Long createdBy;
 
   @Column(nullable = false)
   private LocalDate createdAt;
