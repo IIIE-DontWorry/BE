@@ -44,7 +44,7 @@ public class Gallery {
   }
 
   // ===연관관계===//
-  @OneToOne
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "patient_id")
   private Patient patient;
 

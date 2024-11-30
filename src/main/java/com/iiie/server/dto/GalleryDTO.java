@@ -3,6 +3,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
 public class GalleryDTO {
@@ -15,10 +16,36 @@ public class GalleryDTO {
 
     @Getter
     @Setter
-    public static class UploadImages{
+    public static class GetImageRequest {
+        private Long caregiverId;
+        private Long guardianId;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class GetImageResponse {
+        private Long galleryId;
+        private Long createdBy;
+        private LocalDate createdAt;
+        private List<ImageInfo> images;
         private String title;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class ImageInfo {
+        private Long imageId;
+        private String imageUrl;
+    }
+
+    @Getter
+    @Setter
+    public static class UploadImages{
         private Long caregiverId;
         private Long guardianId;
         private List<MultipartFile> images;
+        private String title;
     }
 }

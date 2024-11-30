@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -41,6 +42,49 @@ public class GalleryService {
         this.guardianRepository = guardianRepository;
         this.galleryRepository = galleryRepository;
         this.s3Client = s3Client;
+    }
+
+    @Transactional(readOnly = true)
+    public List<GalleryDTO.GetImageResponse> getImages(GalleryDTO.GetImageRequest getImageRequest) {
+        Patient patient = null;
+
+        // 간병인일 경우
+        if (getImageRequest.getCaregiverId() != null) {
+            Caregiver caregiver = caregiverRepository.findById(getImageRequest.getCaregiverId())
+                    .orElseThrow(() -> new NotFoundException("caregiver", getImageRequest.getCaregiverId(), "존재하지 않는 간병인입니다."));
+            patient = caregiver.getPatient();
+        }
+        // 보호자일 경우
+        else if (getImageRequest.getGuardianId() != null) {
+            Guardian guardian = guardianRepository.findById(getImageRequest.getGuardianId())
+                    .orElseThrow(() -> new NotFoundException("guardian", getImageRequest.getGuardianId(), "존재하지 않는 보호자입니다."));
+            patient = guardian.getPatient();
+        } else {
+            throw new IllegalArgumentException("Caregiver ID나 Guardian ID 중 하나를 제공해야 합니다.");
+        }
+
+        // 환자의 모든 갤러리 가져오기
+        List<Gallery> galleries = patient.getGalleries();
+
+        // 갤러리와 이미지 정보를 DTO로 변환
+        List<GalleryDTO.GetImageResponse> responses = galleries.stream().map(gallery -> {
+            List<GalleryDTO.ImageInfo> imagesInfo = gallery.getImages().stream()
+                    .map(image -> GalleryDTO.ImageInfo.builder()
+                            .imageId(image.getId())
+                            .imageUrl(image.getImageUrl())
+                            .build())
+                    .collect(Collectors.toList());
+
+            return GalleryDTO.GetImageResponse.builder()
+                    .galleryId(gallery.getId())
+                    .createdBy(gallery.getCreatedBy())
+                    .createdAt(gallery.getCreatedAt())
+                    .title(gallery.getTitle())
+                    .images(imagesInfo)
+                    .build();
+        }).collect(Collectors.toList());
+
+        return responses;
     }
 
     @Transactional
