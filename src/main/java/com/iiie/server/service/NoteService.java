@@ -50,8 +50,20 @@ public class NoteService {
     }
 
     @Transactional(readOnly = true)
-    public List<NoteDTO.NoteResponse> getLatestNotes() {
-        List<Note> notes = noteRepository.findTop3ByOrderByIdDesc();
+    public List<NoteDTO.NoteResponse> getLatestNotes(NoteDTO.InquiryRequest inquiryRequest) {
+        List<Note> notes;
+
+        // 간병인 ID로 조회
+        if (inquiryRequest.getCareGiverId() != null) {
+            notes = noteRepository.findTop3ByCaregiverIdOrderByCreatedAtDesc(inquiryRequest.getCareGiverId());
+        }
+        // 보호자 ID로 조회
+        else if (inquiryRequest.getGuardianId() != null) {
+            notes = noteRepository.findTop3ByGuardianIdOrderByCreatedAtDesc(inquiryRequest.getGuardianId());
+        } else {
+            throw new IllegalArgumentException("간병인 ID 또는 보호자 ID 중 하나는 반드시 제공되어야 합니다.");
+        }
+
         return notes.stream()
                 .map(this::convertToNoteResponse)
                 .collect(Collectors.toList());
