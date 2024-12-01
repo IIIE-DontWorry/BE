@@ -1,9 +1,11 @@
 package com.iiie.server.service;
 
+import com.iiie.server.convertor.ConvertorDTO;
 import com.iiie.server.domain.CareerHistory;
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.Guardian;
 import com.iiie.server.dto.CaregiverDTO;
+import com.iiie.server.dto.CaregiverDTO.InquiryCaregiver;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRepository;
@@ -70,13 +72,14 @@ public class CaregiverService {
             .orElseThrow(
                 () -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
 
-    CaregiverDTO.InquiryCaregiver inquiryCaregiver = new CaregiverDTO.InquiryCaregiver();
-    inquiryCaregiver.setName(caregiver.getName());
-    inquiryCaregiver.setPhone(caregiver.getPhone());
-    inquiryCaregiver.setHospital(caregiver.getHospital());
-    inquiryCaregiver.setPatientName(caregiver.getPatient().getName());
-
-    return inquiryCaregiver;
+    List<CareerHistory> careerHistories = caregiver.getCareerHistories();
+    return InquiryCaregiver.builder()
+        .name(caregiver.getName())
+        .phone(caregiver.getPhone())
+        .hospital(caregiver.getHospital())
+        .patientName(caregiver.getPatient().getName())
+        .careerHistories(ConvertorDTO.toCareerHistoryDTOs(careerHistories))
+        .build();
   }
 
   @Transactional

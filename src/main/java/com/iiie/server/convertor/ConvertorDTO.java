@@ -2,11 +2,13 @@ package com.iiie.server.convertor;
 
 import com.iiie.server.domain.CareReport;
 import com.iiie.server.domain.CareSchedule;
+import com.iiie.server.domain.CareerHistory;
 import com.iiie.server.domain.MedicationCheck;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.CareScheduleResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.GuardianResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.MedicationCheckResponse;
+import com.iiie.server.dto.CaregiverDTO.InquiryCaregiver.CareerHistoryDTO;
 import com.iiie.server.dto.GuardianDTO.InquiryGuardian.PatientInfo.MedicationInfo;
 import java.util.List;
 
@@ -82,5 +84,13 @@ public class ConvertorDTO {
 
   public static List<MedicationInfo> toMedicationInfos(List<MedicationCheck> medicationChecks) {
     return medicationChecks.stream().map(ConvertorDTO::toMedicationInfo).toList();
+  }
+
+  private static CareerHistoryDTO toCareerHistoryDTO(CareerHistory careerHistory) {
+    return CareerHistoryDTO.builder().career(careerHistory.getDescription()).build();
+  }
+
+  public static List<CareerHistoryDTO> toCareerHistoryDTOs(List<CareerHistory> careerHistories) {
+    return careerHistories.stream().map(ConvertorDTO::toCareerHistoryDTO).toList();
   }
 }
