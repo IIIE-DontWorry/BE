@@ -1,8 +1,12 @@
 package com.iiie.server.service;
 
+import com.iiie.server.convertor.ConvertorDTO;
 import com.iiie.server.domain.Guardian;
 import com.iiie.server.domain.Patient;
 import com.iiie.server.dto.GuardianDTO;
+import com.iiie.server.dto.GuardianDTO.InquiryGuardian;
+import com.iiie.server.dto.GuardianDTO.InquiryGuardian.GuardianInfo;
+import com.iiie.server.dto.GuardianDTO.InquiryGuardian.PatientInfo;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.GuardianRepository;
 import java.util.UUID;
@@ -59,13 +63,25 @@ public class GuardianService {
             .findById(guardianId)
             .orElseThrow(() -> new NotFoundException("guardian: ", guardianId, "존재하지 않는 보호자입니다."));
 
-    GuardianDTO.InquiryGuardian inquiryGuardian = new GuardianDTO.InquiryGuardian();
-    inquiryGuardian.setName(guardian.getName());
-    inquiryGuardian.setPhone(guardian.getPhone());
-    inquiryGuardian.setAddress(guardian.getAddress());
-    inquiryGuardian.setPatientName(guardian.getPatient().getName());
+    GuardianInfo guardianInfo =
+        GuardianInfo.builder()
+            .name(guardian.getName())
+            .phone(guardian.getPhone())
+            .address(guardian.getAddress())
+            .build();
 
-    return inquiryGuardian;
+    Patient patient = guardian.getPatient();
+
+    PatientInfo patientInfo =
+        PatientInfo.builder()
+            .name(patient.getName())
+            .age(patient.getAge())
+            .diseaseName(patient.getDiseaseName())
+            .hospitalName(patient.getHospitalName())
+            .MedicationInfos(ConvertorDTO.toMedicationInfos(patient.getMedicationChecks()))
+            .build();
+
+    return InquiryGuardian.builder().guardianInfo(guardianInfo).patientInfo(patientInfo).build();
   }
 
   @Transactional

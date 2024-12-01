@@ -7,6 +7,7 @@ import com.iiie.server.dto.CareReportDTO.CareReportResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.CareScheduleResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.GuardianResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.MedicationCheckResponse;
+import com.iiie.server.dto.GuardianDTO.InquiryGuardian.PatientInfo.MedicationInfo;
 import java.util.List;
 
 public class ConvertorDTO {
@@ -73,5 +74,13 @@ public class ConvertorDTO {
                     .isCheck(request.getIsCheck())
                     .build())
         .toList();
+  }
+
+  private static MedicationInfo toMedicationInfo(MedicationCheck medicationCheck) {
+    return MedicationInfo.builder().name(medicationCheck.getName()).build();
+  }
+
+  public static List<MedicationInfo> toMedicationInfos(List<MedicationCheck> medicationChecks) {
+    return medicationChecks.stream().map(ConvertorDTO::toMedicationInfo).toList();
   }
 }
