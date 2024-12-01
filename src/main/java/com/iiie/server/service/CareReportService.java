@@ -18,6 +18,8 @@ import com.iiie.server.repository.MedicationCheckRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,11 +107,11 @@ public class CareReportService {
             .findByCaregiverIdAndPostedDate(careGiverId, postedDate)
             .orElseThrow(() -> new NotFoundException("care_report", null, "존재하지 않는 간병 보고서입니다."));
 
-    if (!request.getCareScheduleRequests().isEmpty()) {
+    if (!request.getPatchCareScheduleRequests().isEmpty()) {
       // 시간에 따른 일정 엔티티 업데이트
       List<CareSchedule> careScheduleList =
           EntityUpdater.toCareScheduleList(
-              request.getCareScheduleRequests(), careScheduleRepository);
+              request.getPatchCareScheduleRequests(), careScheduleRepository);
       careScheduleList.forEach(careReport::setCareSchedules); // 연관관계 매핑
     }
 
@@ -146,5 +148,14 @@ public class CareReportService {
     }
 
     return ConvertorDTO.toCareReportResponse(careReport);
+  }
+
+  public Page<CareReportResponse> getAllCareReports(Long careGiverId, Pageable pageable) {
+    careGiverRepository
+        .findById(careGiverId)
+        .orElseThrow(() -> new NotFoundException("caregiver", careGiverId, "존재하지 않는 간병인입니다."));
+
+    Page<CareReport> careReports = careReportRepository.findAllByCaregiverId(pageable, careGiverId);
+    return careReports.map(ConvertorDTO::toCareReportResponse);
   }
 }

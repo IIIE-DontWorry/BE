@@ -12,8 +12,16 @@ public class CareScheduleDTO {
 
   @Getter
   @Setter
-  public static class CareScheduleRequest {
+  public static class PatchCareScheduleRequest {
     private Long id;
+    private String description; // 일지 내용
+    private int hour;
+    private int minute;
+  }
+
+  @Getter
+  @Setter
+  public static class PostCareScheduleRequest {
     private String description; // 일지 내용
     private int hour;
     private int minute;

@@ -1,6 +1,7 @@
 package com.iiie.server.controller;
 
 import com.iiie.server.domain.Guardian;
+import com.iiie.server.dto.CaregiverDTO.InquiryCaregiver;
 import com.iiie.server.dto.GuardianAndPatientDTO;
 import com.iiie.server.dto.GuardianDTO;
 import com.iiie.server.dto.GuardianDTO.CreationGuardian;
@@ -70,10 +71,8 @@ public class GuardianController {
 
   @GetMapping("/myPage/caregiver/{guardianId}")
   @Operation(summary = "간병인 정보 조회", description = "보호자는 연결된 간병인의 기본 정보를 조회 할 수 있다.")
-  public SuccessResponse<GuardianDTO.CaregiverProfile> inquiryCaregiverProfile(
-      @PathVariable Long guardianId) {
-    GuardianDTO.CaregiverProfile caregiverProfile =
-        guardianService.inquiryCaregiverProfile(guardianId);
+  public SuccessResponse<InquiryCaregiver> inquiryCaregiverProfile(@PathVariable Long guardianId) {
+    InquiryCaregiver caregiverProfile = guardianService.inquiryCaregiverProfile(guardianId);
     return new SuccessResponse<>("간병인 정보 조회 완료", caregiverProfile);
   }
 }

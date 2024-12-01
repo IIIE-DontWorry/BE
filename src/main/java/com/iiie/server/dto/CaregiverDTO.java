@@ -3,6 +3,7 @@ package com.iiie.server.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.UUID;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,11 +38,20 @@ public class CaregiverDTO {
 
   @Getter
   @Setter
+  @Builder
   public static class InquiryCaregiver {
     private String name;
     private String phone;
     private String hospital;
     private String patientName;
+    private List<CareerHistoryDTO> careerHistories;
+
+    @Getter
+    @Setter
+    @Builder
+    public static class CareerHistoryDTO {
+      private String career;
+    }
   }
 
   @Getter
