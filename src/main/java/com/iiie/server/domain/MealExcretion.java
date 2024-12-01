@@ -1,14 +1,10 @@
 package com.iiie.server.domain;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,7 +39,27 @@ public class MealExcretion {
 
   private Boolean excretionEveningTakenStatus;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "patient_id")
-  private Patient patient;
+  public void setExcretionEveningTakenStatus(Boolean excretionEveningTakenStatus) {
+    this.excretionEveningTakenStatus = excretionEveningTakenStatus;
+  }
+
+  public void setExcretionAfternoonTakenStatus(Boolean excretionAfternoonTakenStatus) {
+    this.excretionAfternoonTakenStatus = excretionAfternoonTakenStatus;
+  }
+
+  public void setExcretionMorningTakenStatus(Boolean excretionMorningTakenStatus) {
+    this.excretionMorningTakenStatus = excretionMorningTakenStatus;
+  }
+
+  public void setMealEveningTakenStatus(Boolean mealEveningTakenStatus) {
+    this.mealEveningTakenStatus = mealEveningTakenStatus;
+  }
+
+  public void setMealAfternoonTakenStatus(Boolean mealAfternoonTakenStatus) {
+    this.mealAfternoonTakenStatus = mealAfternoonTakenStatus;
+  }
+
+  public void setMealMorningTakenStatus(Boolean mealMorningTakenStatus) {
+    this.mealMorningTakenStatus = mealMorningTakenStatus;
+  }
 }

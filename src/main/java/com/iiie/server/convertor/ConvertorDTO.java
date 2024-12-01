@@ -3,10 +3,12 @@ package com.iiie.server.convertor;
 import com.iiie.server.domain.CareReport;
 import com.iiie.server.domain.CareSchedule;
 import com.iiie.server.domain.CareerHistory;
+import com.iiie.server.domain.MealExcretion;
 import com.iiie.server.domain.MedicationCheck;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.CareScheduleResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.GuardianResponse;
+import com.iiie.server.dto.CareReportDTO.CareReportResponse.MealExcretionResponse;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse.MedicationCheckResponse;
 import com.iiie.server.dto.CaregiverDTO.InquiryCaregiver.CareerHistoryDTO;
 import com.iiie.server.dto.GuardianDTO.InquiryGuardian.PatientInfo.MedicationInfo;
@@ -23,9 +25,21 @@ public class ConvertorDTO {
         .medicationCheckResponse(
             toMedicationCheckResponses(
                 careReport.getCaregiver().getPatient().getMedicationChecks()))
+        .mealExcretionResponse(toMealExcretionResponse(careReport.getMealExcretion()))
         .createdAt(careReport.getCreatedAt())
         .updatedAt(careReport.getUpdatedAt())
         .postedDate(careReport.getPostedDate())
+        .build();
+  }
+
+  private static MealExcretionResponse toMealExcretionResponse(MealExcretion mealExcretion) {
+    return MealExcretionResponse.builder()
+        .mealMorningTakenStatus(mealExcretion.getMealMorningTakenStatus())
+        .mealAfternoonTakenStatus(mealExcretion.getMealAfternoonTakenStatus())
+        .mealEveningTakenStatus(mealExcretion.getMealEveningTakenStatus())
+        .excretionMorningTakenStatus(mealExcretion.getExcretionMorningTakenStatus())
+        .excretionAfternoonTakenStatus(mealExcretion.getExcretionAfternoonTakenStatus())
+        .excretionEveningTakenStatus(mealExcretion.getExcretionEveningTakenStatus())
         .build();
   }
 

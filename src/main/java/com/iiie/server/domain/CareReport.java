@@ -110,6 +110,10 @@ public class CareReport {
     }
   }
 
+  public void setMealExcretion(MealExcretion mealExcretion) {
+    this.mealExcretion = mealExcretion;
+  }
+
   public void changePostedDate(String postedDate) {
     this.postedDate = LocalDate.parse(postedDate);
   }
