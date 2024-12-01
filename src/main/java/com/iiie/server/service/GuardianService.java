@@ -89,6 +89,22 @@ public class GuardianService {
     return updatedGuardian;
   }
 
+  @Transactional
+  public void deleteGuardian(Long guardianId) {
+    Guardian guardian =
+        guardianRepository
+            .findById(guardianId)
+            .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자입니다."));
+
+    // 간병인과의 참조를 제거
+    if (guardian.getCaregiver() != null) {
+      guardian.setCaregiver(null);
+    }
+
+    // 보호자 삭제
+    guardianRepository.delete(guardian);
+  }
+
   @Transactional(readOnly = true)
   public GuardianDTO.CaregiverProfile inquiryCaregiverProfile(Long guardianId) {
     Guardian guardian =

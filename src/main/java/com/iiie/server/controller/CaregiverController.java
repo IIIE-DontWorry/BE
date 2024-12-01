@@ -47,6 +47,13 @@ public class CaregiverController {
     return new SuccessResponse<>("간병인 정보 수정 완료", updateInfo);
   }
 
+  @DeleteMapping("/myPage/delete/{caregiverId}")
+  @Operation(summary = "간병인 탈퇴", description = "간병인은 자신의 계정을 삭제할 수 있다.")
+  public SuccessResponse<String> deleteCaregiver(@PathVariable Long caregiverId) {
+    caregiverService.deleteCaregiver(caregiverId);
+    return new SuccessResponse<>("간병인 탈퇴 완료", null);
+  }
+
   @GetMapping("/myPage/guardianProfile/{caregiverId}")
   @Operation(summary = "보호자 정보 조회", description = "간병인은 연결된 보호자의 기본 정보를 조회할 수 있다.")
   public SuccessResponse<CaregiverDTO.GuardianProfile> inquiryGuardianProfile(
