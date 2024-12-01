@@ -2,6 +2,7 @@ package com.iiie.server.dto;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
+
 public class NoteDTO {
     private Long id;
     private String createdBy;
@@ -12,14 +13,14 @@ public class NoteDTO {
     @Setter
     public static class InquiryRequest {
         private Long guardianId;
-        private Long careGiverId;
+        private Long caregiverId;
     }
 
     @Getter
     @Setter
     public static class AddRequest {
         private Long guardianId;
-        private Long careGiverId;
+        private Long caregiverId;
         private String noteContent;
     }
 

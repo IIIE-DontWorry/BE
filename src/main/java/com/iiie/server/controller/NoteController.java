@@ -1,17 +1,16 @@
 package com.iiie.server.controller;
-import com.iiie.server.domain.Note;
-import com.iiie.server.service.NoteService;
+
 import com.iiie.server.dto.NoteDTO;
+import com.iiie.server.service.NoteService;
 import com.iiie.server.utils.SuccessResponse;
-import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
 
 @RestController
 @RequestMapping("/notes")
@@ -27,7 +26,7 @@ public class NoteController {
         List<NoteDTO.NoteResponse> messages = noteService.inquiryNotes(inquiryRequest);
         return new SuccessResponse<>("쪽지 목록 조회 완료", messages);
     }
-    
+
     @PostMapping("/latest")
     @Operation(summary = "최근 쪽지 조회", description = "가장 최근에 작성된 쪽지 3개를 조회합니다.")
     public SuccessResponse<List<NoteDTO.NoteResponse>> getLatestNotes(@RequestBody NoteDTO.InquiryRequest inquiryRequest) {
