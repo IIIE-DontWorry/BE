@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import java.time.LocalDate;
@@ -96,6 +97,10 @@ public class CareReport {
   @Builder.Default
   @JsonIgnore
   private List<GuardianRequest> guardianRequests = new ArrayList<>();
+
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "meal_excretion_id")
+  private MealExcretion mealExcretion;
 
   // === 연관관계 보조 메서드 === //
   public void setCareSchedules(CareSchedule careSchedule) {
