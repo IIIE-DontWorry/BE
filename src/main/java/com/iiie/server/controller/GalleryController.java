@@ -35,5 +35,17 @@ public class GalleryController {
         return new SuccessResponse<>("이미지 업로드 완료", null);
     }
 
+    @DeleteMapping("/delete/{galleryId}")
+    @Operation(summary = "갤러리 삭제", description = "선택한 갤러리를 삭제합니다.")
+    public SuccessResponse<Void> deleteGallery(@PathVariable Long galleryId) {
+        galleryService.deleteGallery(galleryId);
+        return new SuccessResponse<>("갤러리 삭제 완료", null);
+    }
 
+    @PatchMapping("")
+    @Operation(summary = "갤러리 수정", description = "갤러리 제목 수정, 이미지 추가 및 삭제를 처리합니다.")
+    public SuccessResponse<Void> updateGallery(@ModelAttribute GalleryDTO.UpdateGalleryRequest request) {
+        galleryService.updateGallery(request);
+        return new SuccessResponse<>("갤러리 수정 완료", null);
+    }
 }

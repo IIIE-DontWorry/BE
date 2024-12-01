@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
 
 import java.io.InputStream;
@@ -76,7 +77,7 @@ public class GalleryService {
                     .collect(Collectors.toList());
 
             return GalleryDTO.GetGalleryResponse.builder()
-                    .galleryId(gallery.getId())
+                    .galleryId(gallery.getGallery_id())
                     .createdBy(gallery.getCreatedBy())
                     .createdAt(gallery.getCreatedAt())
                     .title(gallery.getTitle())
@@ -122,7 +123,7 @@ public class GalleryService {
                     .collect(Collectors.toList());
 
             return GalleryDTO.GetGalleryResponse.builder()
-                    .galleryId(gallery.getId())
+                    .galleryId(gallery.getGallery_id())
                     .createdBy(gallery.getCreatedBy())
                     .createdAt(gallery.getCreatedAt())
                     .title(gallery.getTitle())
@@ -195,6 +196,67 @@ public class GalleryService {
         galleryRepository.save(gallery);
     }
 
+    @Transactional
+    public void deleteGallery(Long galleryId) {
+        Gallery gallery = galleryRepository.findById(galleryId)
+                .orElseThrow(() -> new NotFoundException("gallery", galleryId, "존재하지 않는 갤러리입니다."));
+
+        // S3에서 이미지 삭제
+        for (Image image : gallery.getImages()) {
+            deleteFileFromS3(image.getImageUrl());
+        }
+
+        galleryRepository.delete(gallery);
+    }
+
+    @Transactional
+    public void updateGallery(GalleryDTO.UpdateGalleryRequest request) {
+        Gallery gallery = galleryRepository.findById(request.getGalleryId())
+                .orElseThrow(() -> new NotFoundException("gallery", request.getGalleryId(), "존재하지 않는 갤러리입니다."));
+
+        // 제목 수정
+        if (request.getTitle() != null) {
+            gallery.setTitle(request.getTitle());
+        }
+
+        // 이미지 추가
+        if (request.getAddImages() != null && !request.getAddImages().isEmpty()) {
+            List<Image> imageEntities = new ArrayList<>();
+            for (MultipartFile file : request.getAddImages()) {
+                try (InputStream inputStream = file.getInputStream()) {
+                    String fileName = file.getOriginalFilename();
+                    long contentLength = file.getSize();
+
+                    // S3에 파일 업로드
+                    String imageUrl = uploadFileToS3(fileName, inputStream, contentLength);
+
+                    // 이미지 엔티티 생성
+                    Image image = Image.builder()
+                            .imageUrl(imageUrl)
+                            .gallery(gallery)
+                            .build();
+
+                    imageEntities.add(image);
+                } catch (IOException e) {
+                    throw new RuntimeException("파일 업로드 실패: " + e.getMessage(), e);
+                }
+            }
+            gallery.getImages().addAll(imageEntities);
+        }
+
+        // 이미지 삭제
+        if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
+            List<Image> imagesToRemove = gallery.getImages().stream()
+                    .filter(image -> request.getDeleteImageIds().contains(image.getId()))
+                    .collect(Collectors.toList());
+
+            for (Image image : imagesToRemove) {
+                gallery.getImages().remove(image);
+                deleteFileFromS3(image.getImageUrl());
+            }
+        }
+    }
+
     public String uploadFileToS3(String fileName, InputStream inputStream, long contentLength) {
         // S3 Key 생성
         String key = directoryPath + UUID.randomUUID().toString() + fileName;
@@ -210,5 +272,18 @@ public class GalleryService {
 
         // S3에 업로드된 파일의 URL 반환
         return bucketUrl + key;
+    }
+
+    public void deleteFileFromS3(String imageUrl) {
+        // S3 키 추출
+        String key = imageUrl.replace(bucketUrl, "");
+
+        // S3 객체 삭제 요청
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        s3Client.deleteObject(deleteObjectRequest);
     }
 }

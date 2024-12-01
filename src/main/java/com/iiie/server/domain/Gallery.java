@@ -2,9 +2,8 @@ package com.iiie.server.domain;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -25,13 +24,13 @@ public class Gallery {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "gallery_id")
-  private Long id;
+  private Long gallery_id;
 
   @Column(nullable=false)
   private Long createdBy;
 
   @Column(nullable = false)
-  private LocalDate createdAt;
+  private LocalDateTime createdAt;
 
   @Column(columnDefinition = "TEXT", nullable = false)
   private String title;
@@ -39,8 +38,7 @@ public class Gallery {
   // ==시간관련==//
   @PrePersist
   private void prePersist() {
-    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-    this.createdAt = nowInKorea.toLocalDate();
+    this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
   }
 
   // ===연관관계===//

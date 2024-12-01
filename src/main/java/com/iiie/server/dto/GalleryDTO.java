@@ -1,5 +1,5 @@
 package com.iiie.server.dto;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class GalleryDTO {
     private Long id;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     private Long caregiverId;
     private Long guardianId;
     private Long createdBy;
@@ -27,7 +27,7 @@ public class GalleryDTO {
     public static class GetGalleryResponse {
         private Long galleryId;
         private Long createdBy;
-        private LocalDate createdAt;
+        private LocalDateTime createdAt;
         private List<ImageInfo> images;
         private String title;
     }
@@ -47,5 +47,14 @@ public class GalleryDTO {
         private Long guardianId;
         private List<MultipartFile> images;
         private String title;
+    }
+
+    @Getter
+    @Setter
+    public static class UpdateGalleryRequest {
+        private Long galleryId;
+        private String title;
+        private List<MultipartFile> addImages;
+        private List<Long> deleteImageIds;
     }
 }
