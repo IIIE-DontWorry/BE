@@ -6,9 +6,11 @@ import com.iiie.server.domain.CareReport;
 import com.iiie.server.domain.CareSchedule;
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.GuardianRequest;
+import com.iiie.server.domain.MealExcretion;
 import com.iiie.server.domain.MedicationCheck;
 import com.iiie.server.dto.CareReportDTO.CareReportPatchRequest;
 import com.iiie.server.dto.CareReportDTO.CareReportResponse;
+import com.iiie.server.dto.MealExcretionDTO.MealExcretionRequest;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.CareReportRepository;
 import com.iiie.server.repository.CareScheduleRepository;
@@ -70,7 +72,18 @@ public class CareReportService {
       return ConvertorDTO.toCareReportResponse(existingReport.get());
     }
 
+    MealExcretion mealExcretion =
+        MealExcretion.builder()
+            .mealMorningTakenStatus(false)
+            .mealAfternoonTakenStatus(false)
+            .mealEveningTakenStatus(false)
+            .excretionMorningTakenStatus(false)
+            .excretionAfternoonTakenStatus(false)
+            .excretionEveningTakenStatus(false)
+            .build();
+
     CareReport careReport = CareReport.builder().caregiver(caregiver).specialNote("").build();
+    careReport.setMealExcretion(mealExcretion);
 
     CareReportResponse result =
         ConvertorDTO.toCareReportResponse(careReportRepository.save(careReport));
@@ -114,6 +127,21 @@ public class CareReportService {
               request.getPatchCareScheduleRequests(), careScheduleRepository);
       careScheduleList.forEach(careReport::setCareSchedules); // 연관관계 매핑
     }
+
+    // 배변활동 및 식사 여부 업데이트
+    MealExcretion mealExcretion = careReport.getMealExcretion();
+    MealExcretionRequest mealExcretionRequest = request.getMealExcretionRequest();
+
+    mealExcretion.setMealMorningTakenStatus(mealExcretionRequest.getMealMorningTakenStatus());
+    mealExcretion.setMealAfternoonTakenStatus(mealExcretionRequest.getMealAfternoonTakenStatus());
+    mealExcretion.setMealEveningTakenStatus(mealExcretionRequest.getMealEveningTakenStatus());
+
+    mealExcretion.setExcretionMorningTakenStatus(
+        mealExcretionRequest.getExcretionMorningTakenStatus());
+    mealExcretion.setExcretionAfternoonTakenStatus(
+        mealExcretionRequest.getExcretionAfternoonTakenStatus());
+    mealExcretion.setExcretionEveningTakenStatus(
+        mealExcretionRequest.getExcretionEveningTakenStatus());
 
     if (!request.getMedicationCheckRequests().isEmpty()) {
       // 투약 리스트 엔티티 업데이트

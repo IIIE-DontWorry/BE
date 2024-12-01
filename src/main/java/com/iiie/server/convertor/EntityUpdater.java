@@ -12,15 +12,21 @@ import com.iiie.server.repository.MedicationCheckRepository;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EntityUpdater {
 
   public static CareSchedule toCareSchedule(
       PatchCareScheduleRequest dto, CareScheduleRepository careScheduleRepository) {
-    CareSchedule careSchedule = careScheduleRepository.findById(dto.getId()).get();
-    careSchedule.updateFields(dto.getDescription(), LocalTime.of(dto.getHour(), dto.getMinute()));
-    return careSchedule;
+    Optional<CareSchedule> careSchedule = careScheduleRepository.findById(dto.getId());
+    if (!careSchedule.isPresent()) {
+      return null;
+    }
+    careSchedule
+        .get()
+        .updateFields(dto.getDescription(), LocalTime.of(dto.getHour(), dto.getMinute()));
+    return careSchedule.get();
   }
 
   public static List<CareSchedule> toCareScheduleList(
