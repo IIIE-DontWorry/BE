@@ -14,18 +14,19 @@ public class ConvertorDTO {
   public static CareReportResponse toCareReportResponse(CareReport careReport) {
     return CareReportResponse.builder()
         .id(careReport.getId())
-        .careScheduleResponses(toCareScheduleResponse(careReport.getCareSchedules()))
+        .careScheduleResponses(toCareScheduleResponses(careReport.getCareSchedules()))
         .specialNote(careReport.getSpecialNote())
-        .guardianResponses(toGuardianResponse(careReport.getGuardianRequests()))
+        .guardianResponses(toGuardianResponses(careReport.getGuardianRequests()))
         .medicationCheckResponse(
-            toMedicationCheckResponse(careReport.getCaregiver().getPatient().getMedicationChecks()))
+            toMedicationCheckResponses(
+                careReport.getCaregiver().getPatient().getMedicationChecks()))
         .createdAt(careReport.getCreatedAt())
         .updatedAt(careReport.getUpdatedAt())
         .postedDate(careReport.getPostedDate())
         .build();
   }
 
-  private static List<MedicationCheckResponse> toMedicationCheckResponse(
+  private static List<MedicationCheckResponse> toMedicationCheckResponses(
       List<MedicationCheck> medicationChecks) {
     return medicationChecks.stream()
         .map(
@@ -40,7 +41,7 @@ public class ConvertorDTO {
         .toList();
   }
 
-  private static List<CareScheduleResponse> toCareScheduleResponse(
+  private static List<CareScheduleResponse> toCareScheduleResponses(
       List<CareSchedule> careSchedules) {
     return careSchedules.stream()
         .map(
@@ -53,7 +54,15 @@ public class ConvertorDTO {
         .toList();
   }
 
-  private static List<GuardianResponse> toGuardianResponse(
+  public static CareScheduleResponse toCareScheduleResponse(CareSchedule careSchedule) {
+    return CareScheduleResponse.builder()
+        .id(careSchedule.getId())
+        .description(careSchedule.getDescription())
+        .activityAt(careSchedule.getActivityAt())
+        .build();
+  }
+
+  private static List<GuardianResponse> toGuardianResponses(
       List<com.iiie.server.domain.GuardianRequest> guardianRequests) {
     return guardianRequests.stream()
         .map(

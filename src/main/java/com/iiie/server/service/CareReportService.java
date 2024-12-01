@@ -107,11 +107,11 @@ public class CareReportService {
             .findByCaregiverIdAndPostedDate(careGiverId, postedDate)
             .orElseThrow(() -> new NotFoundException("care_report", null, "존재하지 않는 간병 보고서입니다."));
 
-    if (!request.getCareScheduleRequests().isEmpty()) {
+    if (!request.getPatchCareScheduleRequests().isEmpty()) {
       // 시간에 따른 일정 엔티티 업데이트
       List<CareSchedule> careScheduleList =
           EntityUpdater.toCareScheduleList(
-              request.getCareScheduleRequests(), careScheduleRepository);
+              request.getPatchCareScheduleRequests(), careScheduleRepository);
       careScheduleList.forEach(careReport::setCareSchedules); // 연관관계 매핑
     }
 

@@ -1,6 +1,6 @@
 package com.iiie.server.dto;
 
-import com.iiie.server.dto.CareScheduleDTO.CareScheduleRequest;
+import com.iiie.server.dto.CareScheduleDTO.PatchCareScheduleRequest;
 import com.iiie.server.dto.GuardianRequestDTO.GuardianRequest;
 import com.iiie.server.dto.MedicationDTO.MedicationCheckRequest;
 import java.time.LocalDate;
@@ -63,7 +63,7 @@ public class CareReportDTO {
   @Getter
   @Setter
   public static class CareReportPatchRequest {
-    private List<CareScheduleRequest> careScheduleRequests;
+    private List<PatchCareScheduleRequest> patchCareScheduleRequests;
     private List<MedicationCheckRequest> medicationCheckRequests;
     private String specialNote;
     private List<GuardianRequest> guardianRequests;
