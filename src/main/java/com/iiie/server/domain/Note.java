@@ -9,7 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import lombok.AccessLevel;
@@ -27,14 +27,14 @@ public class Note {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "note_id")
+  @Column(name = "id")
   private Long id;
 
   @Column(nullable=false)
   private String createdBy;
 
   @Column(nullable = false)
-  private LocalDate createdAt;
+  private LocalDateTime createdAt;
 
   @Column(columnDefinition = "TEXT", nullable = false)
   private String noteContent;
@@ -42,8 +42,7 @@ public class Note {
   // ==시간관련==//
   @PrePersist
   private void prePersist() {
-    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-    this.createdAt = nowInKorea.toLocalDate();
+    this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
   }
   // ===연관관계===//
   @ManyToOne(fetch = FetchType.EAGER)

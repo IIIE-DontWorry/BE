@@ -1,11 +1,11 @@
 package com.iiie.server.dto;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 public class NoteDTO {
     private Long id;
     private String createdBy;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     private String noteContent;
 
     @Getter
@@ -28,7 +28,7 @@ public class NoteDTO {
     public static class NoteResponse {
         private Long id;
         private String createdBy;
-        private LocalDate createdAt;
+        private LocalDateTime createdAt;
         private String noteContent;
     }
 

@@ -34,11 +34,13 @@ public class NoteService {
 
         // 간병인 ID로 필터링
         if (inquiryRequest.getCareGiverId() != null) {
-            notes = noteRepository.findAllByCaregiverId(inquiryRequest.getCareGiverId());
+            notes = noteRepository.findAllByCaregiverId(inquiryRequest.getCareGiverId())
+                    .orElseThrow(() -> new NotFoundException("note", inquiryRequest.getCareGiverId(), "해당 간병인과 관련된 쪽지가 존재하지 않습니다."));
         }
         // 보호자 ID로 필터링
         else if (inquiryRequest.getGuardianId() != null) {
-            notes = noteRepository.findAllByGuardianId(inquiryRequest.getGuardianId());
+            notes = noteRepository.findAllByGuardianId(inquiryRequest.getGuardianId())
+                    .orElseThrow(() -> new NotFoundException("note", inquiryRequest.getGuardianId(), "해당 보호자와 관련된 쪽지가 존재하지 않습니다."));
         } else {
             throw new IllegalArgumentException("간병인 ID 또는 보호자 ID 중 하나는 반드시 제공되어야 합니다.");
         }
@@ -55,11 +57,13 @@ public class NoteService {
 
         // 간병인 ID로 조회
         if (inquiryRequest.getCareGiverId() != null) {
-            notes = noteRepository.findTop3ByCaregiverIdOrderByCreatedAtDesc(inquiryRequest.getCareGiverId());
+            notes = noteRepository.findTop3ByCaregiverIdOrderByCreatedAtDesc(inquiryRequest.getCareGiverId())
+                    .orElseThrow(() -> new NotFoundException("note", inquiryRequest.getCareGiverId(), "해당 간병인과 관련된 쪽지가 존재하지 않습니다."));
         }
         // 보호자 ID로 조회
         else if (inquiryRequest.getGuardianId() != null) {
-            notes = noteRepository.findTop3ByGuardianIdOrderByCreatedAtDesc(inquiryRequest.getGuardianId());
+            notes = noteRepository.findTop3ByGuardianIdOrderByCreatedAtDesc(inquiryRequest.getGuardianId())
+                    .orElseThrow(() -> new NotFoundException("note", inquiryRequest.getGuardianId(), "해당 보호자와 관련된 쪽지가 존재하지 않습니다."));
         } else {
             throw new IllegalArgumentException("간병인 ID 또는 보호자 ID 중 하나는 반드시 제공되어야 합니다.");
         }

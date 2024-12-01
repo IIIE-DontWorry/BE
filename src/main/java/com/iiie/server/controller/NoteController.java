@@ -28,7 +28,7 @@ public class NoteController {
         return new SuccessResponse<>("쪽지 목록 조회 완료", messages);
     }
     
-    @GetMapping("/latest")
+    @PostMapping("/latest")
     @Operation(summary = "최근 쪽지 조회", description = "가장 최근에 작성된 쪽지 3개를 조회합니다.")
     public SuccessResponse<List<NoteDTO.NoteResponse>> getLatestNotes(@RequestBody NoteDTO.InquiryRequest inquiryRequest) {
         List<NoteDTO.NoteResponse> notes = noteService.getLatestNotes(inquiryRequest);
