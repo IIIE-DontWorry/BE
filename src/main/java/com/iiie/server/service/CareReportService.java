@@ -18,6 +18,8 @@ import com.iiie.server.repository.MedicationCheckRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -146,5 +148,14 @@ public class CareReportService {
     }
 
     return ConvertorDTO.toCareReportResponse(careReport);
+  }
+
+  public Page<CareReportResponse> getAllCareReports(Long careGiverId, Pageable pageable) {
+    careGiverRepository
+        .findById(careGiverId)
+        .orElseThrow(() -> new NotFoundException("caregiver", careGiverId, "존재하지 않는 간병인입니다."));
+
+    Page<CareReport> careReports = careReportRepository.findAllByCaregiverId(pageable, careGiverId);
+    return careReports.map(ConvertorDTO::toCareReportResponse);
   }
 }
