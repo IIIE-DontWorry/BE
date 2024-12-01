@@ -2,6 +2,7 @@ package com.iiie.server.controller;
 
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.dto.CaregiverDTO;
+import com.iiie.server.dto.GuardianDTO.InquiryGuardian;
 import com.iiie.server.service.CaregiverService;
 import com.iiie.server.utils.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,10 +57,8 @@ public class CaregiverController {
 
   @GetMapping("/myPage/guardianProfile/{caregiverId}")
   @Operation(summary = "보호자 정보 조회", description = "간병인은 연결된 보호자의 기본 정보를 조회할 수 있다.")
-  public SuccessResponse<CaregiverDTO.GuardianProfile> inquiryGuardianProfile(
-      @PathVariable Long caregiverId) {
-    CaregiverDTO.GuardianProfile guardianProfile =
-        caregiverService.inquiryGuardianProfile(caregiverId);
+  public SuccessResponse<InquiryGuardian> inquiryGuardianProfile(@PathVariable Long caregiverId) {
+    InquiryGuardian guardianProfile = caregiverService.inquiryGuardianProfile(caregiverId);
     return new SuccessResponse<>("보호자 정보 조회 완료", guardianProfile);
   }
 }

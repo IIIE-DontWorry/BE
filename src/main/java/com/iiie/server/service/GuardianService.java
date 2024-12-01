@@ -1,14 +1,18 @@
 package com.iiie.server.service;
 
 import com.iiie.server.convertor.ConvertorDTO;
+import com.iiie.server.domain.CareerHistory;
+import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.Guardian;
 import com.iiie.server.domain.Patient;
+import com.iiie.server.dto.CaregiverDTO.InquiryCaregiver;
 import com.iiie.server.dto.GuardianDTO;
 import com.iiie.server.dto.GuardianDTO.InquiryGuardian;
 import com.iiie.server.dto.GuardianDTO.InquiryGuardian.GuardianInfo;
 import com.iiie.server.dto.GuardianDTO.InquiryGuardian.PatientInfo;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.GuardianRepository;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,21 +126,24 @@ public class GuardianService {
   }
 
   @Transactional(readOnly = true)
-  public GuardianDTO.CaregiverProfile inquiryCaregiverProfile(Long guardianId) {
+  public InquiryCaregiver inquiryCaregiverProfile(Long guardianId) {
     Guardian guardian =
         guardianRepository
             .findById(guardianId)
             .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자입니다."));
 
-    if (guardian.getCaregiver() == null) {
+    Caregiver caregiver = guardian.getCaregiver();
+    if (caregiver == null) {
       throw new NotFoundException("guardian", guardianId, "보호자에 연결된 간병인이 없습니다.");
     }
 
-    GuardianDTO.CaregiverProfile caregiverProfile = new GuardianDTO.CaregiverProfile();
-    caregiverProfile.setName(guardian.getCaregiver().getName());
-    caregiverProfile.setPhone(guardian.getCaregiver().getPhone());
-    caregiverProfile.setHospital(guardian.getCaregiver().getHospital());
-
-    return caregiverProfile;
+    List<CareerHistory> careerHistories = caregiver.getCareerHistories();
+    return InquiryCaregiver.builder()
+        .name(caregiver.getName())
+        .phone(caregiver.getPhone())
+        .hospital(caregiver.getHospital())
+        .patientName(caregiver.getPatient().getName())
+        .careerHistories(ConvertorDTO.toCareerHistoryDTOs(careerHistories))
+        .build();
   }
 }
