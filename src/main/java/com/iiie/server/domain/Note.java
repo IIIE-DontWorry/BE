@@ -52,4 +52,5 @@ public class Note {
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "guardian_id", nullable = false)
   private Guardian guardian;
+
 }

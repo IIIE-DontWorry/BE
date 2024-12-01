@@ -2,7 +2,6 @@ package com.iiie.server.dto;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
-
 public class NoteDTO {
     private Long id;
     private String createdBy;
