@@ -119,14 +119,16 @@ public class CareReportService {
 
     careReportRepository.deleteById(careReportId);
   }
-  // TODO 1 :  init하고 날짜 변경 시 -> 예외 뜬다.
+
+  // TODO 1 :  init하고 날짜 변경 시 -> 예외 뜬다. (해결)
   // TODO 2 :  존재하지 않는 날짜 시 -> init으로 생성해준 뒤 + 수정까지.
   @Transactional
   public CareReportResponse patchCareReport(Long careReportId, CareReportPatchRequest request) {
+
     final LocalDate postedDate = LocalDate.parse(request.getPostedDate());
     CareReport careReport =
         careReportRepository
-            .findByIdAndPostedDate(careReportId, postedDate)
+            .findByCaregiverIdAndPostedDate(careReportId, postedDate)
             .orElseThrow(() -> new NotFoundException("care_report", null, "존재하지 않는 간병 보고서입니다."));
 
     if (!request.getPatchCareScheduleRequests().isEmpty()) {
