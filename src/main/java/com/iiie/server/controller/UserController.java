@@ -43,7 +43,7 @@ public class UserController {
   @PostMapping("/guardians/login")
   @Operation(summary = "보호자 회원가입 OR 로그인", description = "(환자 정보와 함께)이미 존재하면 로그인. 처음이면 회원가입을 진행한다.")
   public SuccessResponse<?> guardianLogin(
-      @RequestParam("accessToken") String kakaoAccessToken,
+      @RequestParam("kakaoAccessToken") String kakaoAccessToken,
       @RequestBody GuardianAndPatientDTO.CreationRequest request)
       throws IOException {
 
@@ -62,7 +62,7 @@ public class UserController {
       summary = "간병인 회원가입 OR 로그인",
       description = "(보호자 인증 코드를 가지고)이미 존재하면 로그인. 처음이면 회원가입을 진행한다.")
   public SuccessResponse<?> caregiverLogin(
-      @RequestHeader("accessToken") String kakaoAccessToken,
+      @RequestHeader("kakaoAccessToken") String kakaoAccessToken,
       @RequestBody CaregiverDTO.CreationCaregiver request)
       throws IOException {
 
