@@ -48,7 +48,7 @@ public class GuardianController {
     return new SuccessResponse<>("보호자 마이 페이지 조회 완료", inquiryInfo);
   }
 
-  @PostMapping("/myPage/update/{guardianId}")
+  @PatchMapping("/myPage/update/{guardianId}")
   @Operation(summary = "보호자 정보 수정", description = "보호자는 자신의 기본 정보를 수정할 수 있다.")
   public SuccessResponse<GuardianDTO.UpdateGuardian> updateInfo(
       @PathVariable Long guardianId, @RequestBody GuardianDTO.UpdateGuardian updateGuardian) {
