@@ -56,6 +56,10 @@ public class Patient {
   @OneToOne(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
   private Guardian guardian;
 
+  @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<Gallery> galleries = new ArrayList<>();
+
   // === 연관관계 보조 메서드 === //
   public void addMedicationChecks(List<MedicationCheck> medicationChecks) {
     for (MedicationCheck medicationCheck : medicationChecks) {
