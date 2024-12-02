@@ -51,7 +51,7 @@ public class Gallery {
 
   public void addImages(List<Image> images) {
     for (Image image : images) {
-      if(!this.images.contains(image)) {
+      if (!this.images.contains(image)) {
         this.images.add(image);
         image.setGallery(this);
       }
