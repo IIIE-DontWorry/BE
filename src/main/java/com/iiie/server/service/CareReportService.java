@@ -69,7 +69,20 @@ public class CareReportService {
     Optional<CareReport> existingReport =
         careReportRepository.findByCaregiverIdAndPostedDate(careGiverId, today);
 
+    // 최근 요청 사항만 불러와 매핑해준다.
+    Guardian guardian = caregiver.getPatient().getGuardian();
+    List<GuardianRequest> newGuardianRequest =
+        guardianRequestRepository.findAllByIsNewTrueAndGuardianId(guardian.getId());
+
+    // 최근 약물 정보만 불러와 매핑해준다.
+    List<MedicationCheck> newMedicationChecks =
+        medicationCheckRepository.findAllByIsNewTrueAndPatientId(caregiver.getPatient().getId());
+
     if (existingReport.isPresent()) {
+      CareReport careReport = existingReport.get();
+      careReport.addMedicationChecks(newMedicationChecks);
+      careReport.addGuardianRequests(newGuardianRequest);
+
       return ConvertorDTO.toCareReportResponse(existingReport.get());
     }
 
@@ -83,16 +96,11 @@ public class CareReportService {
             .excretionEveningTakenStatus(false)
             .build();
 
-    // 최근 요청 사항만 불러와 매핑해준다.
-    Guardian guardian = caregiver.getPatient().getGuardian();
-    List<GuardianRequest> newGuardianRequest =
-        guardianRequestRepository.findAllByIsNewTrueAndGuardianId(guardian.getId());
-
     // CareReport 엔티티 생성
     CareReport careReport = CareReport.builder().caregiver(caregiver).specialNote("").build();
     careReport.setMealExcretion(mealExcretion);
     careReport.addGuardianRequests(newGuardianRequest);
-
+    careReport.addMedicationChecks(newMedicationChecks);
     CareReportResponse result =
         ConvertorDTO.toCareReportResponse(careReportRepository.save(careReport));
 

@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface MedicationCheckRepository extends JpaRepository<MedicationCheck, Long> {
 
   Optional<List<MedicationCheck>> findAllByPatientId(Long patientId);
+
+  List<MedicationCheck> findAllByIsNewTrueAndPatientId(Long id);
 }

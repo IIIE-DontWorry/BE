@@ -22,9 +22,7 @@ public class ConvertorDTO {
         .careScheduleResponses(toCareScheduleResponses(careReport.getCareSchedules()))
         .specialNote(careReport.getSpecialNote())
         .guardianResponses(toGuardianResponses(careReport.getGuardianRequests()))
-        .medicationCheckResponse(
-            toMedicationCheckResponses(
-                careReport.getCaregiver().getPatient().getMedicationChecks()))
+        .medicationCheckResponse(toMedicationCheckResponses(careReport.getMedicationChecks()))
         .mealExcretionResponse(toMealExcretionResponse(careReport.getMealExcretion()))
         .createdAt(careReport.getCreatedAt())
         .updatedAt(careReport.getUpdatedAt())

@@ -115,10 +115,21 @@ public class CareReport {
   }
 
   public void addGuardianRequests(List<GuardianRequest> guardianRequests) {
+    this.guardianRequests.clear();
     for (GuardianRequest guardianRequest : guardianRequests) {
       if (!this.getGuardianRequests().contains(guardianRequest)) {
         this.getGuardianRequests().add(guardianRequest);
         guardianRequest.setCareReport(this);
+      }
+    }
+  }
+
+  public void addMedicationChecks(List<MedicationCheck> medicationChecks) {
+    this.getMedicationChecks().clear();
+    for (MedicationCheck medicationCheck : medicationChecks) {
+      if (!this.getMedicationChecks().contains(medicationCheck)) {
+        this.getMedicationChecks().add(medicationCheck);
+        medicationCheck.setCareReport(this);
       }
     }
   }
