@@ -78,11 +78,8 @@ public class CareReportService {
     List<MedicationCheck> newMedicationChecks =
         medicationCheckRepository.findAllByIsNewTrueAndPatientId(caregiver.getPatient().getId());
 
+    // 기존 건 그대로 불러와야함
     if (existingReport.isPresent()) {
-      CareReport careReport = existingReport.get();
-      careReport.addMedicationChecks(newMedicationChecks);
-      careReport.addGuardianRequests(newGuardianRequest);
-
       return ConvertorDTO.toCareReportResponse(existingReport.get());
     }
 
