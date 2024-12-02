@@ -181,24 +181,43 @@ public class GalleryService {
     }
 
     @Transactional
-    public void updateGallery(GalleryDTO.UpdateGalleryRequest request) {
-        Gallery gallery = galleryRepository.findById(request.getGalleryId())
-                .orElseThrow(() -> new NotFoundException("gallery", request.getGalleryId(), "존재하지 않는 갤러리입니다."));
+    public void updateGallery(GalleryDTO.UpdateGalleryRequest updateGalleryRequest) {
+        Gallery gallery = galleryRepository.findById(updateGalleryRequest.getGalleryId())
+                .orElseThrow(() -> new NotFoundException("gallery", updateGalleryRequest.getGalleryId(), "존재하지 않는 갤러리입니다."));
 
         // 제목 수정
-        if (request.getTitle() != null) {
-            gallery.setTitle(request.getTitle());
+        if (updateGalleryRequest.getTitle() != null) {
+            gallery.setTitle(updateGalleryRequest.getTitle());
         }
 
         // 이미지 추가
-        if (request.getAddImages() != null && !request.getAddImages().isEmpty()) {
+        if (updateGalleryRequest.getAddImages() != null && !updateGalleryRequest.getAddImages().isEmpty()) {
             List<Image> imageEntities = new ArrayList<>();
-            for (MultipartFile file : request.getAddImages()) {
-                try (InputStream inputStream = file.getInputStream()) {
-                    String fileName = file.getOriginalFilename();
-                    long contentLength = file.getSize();
+            for (String base64Image : updateGalleryRequest.getAddImages()) {
+                try {
+                    // Base64 문자열에서 데이터 분리
+                    String[] parts = base64Image.split(",");
+                    if (parts.length != 2) {
+                        throw new IllegalArgumentException("잘못된 Base64 이미지 데이터");
+                    }
+                    String dataUrl = parts[0]; // 데이터 URL(이미지 형식 포함)
+                    String base64Data = parts[1]; // 실제 이미지 데이터
 
-                    // S3에 파일 업로드
+                    // 데이터 URL에서 content-type 추출
+                    String contentType = dataUrl.split(":")[1].split(";")[0]; // 예: "image/png"
+
+                    // content-type에서 이미지 확장자 추출
+                    String extension = contentType.substring(contentType.indexOf("/") + 1); // 예: "png"
+
+                    // Base64 데이터 디코딩
+                    byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+                    InputStream inputStream = new ByteArrayInputStream(imageBytes);
+                    long contentLength = imageBytes.length;
+
+                    // 고유 파일 이름 생성
+                    String fileName = UUID.randomUUID().toString() + "." + extension;
+
+                    // S3에 업로드
                     String imageUrl = uploadFileToS3(fileName, inputStream, contentLength);
 
                     // 이미지 엔티티 생성
@@ -208,17 +227,17 @@ public class GalleryService {
                             .build();
 
                     imageEntities.add(image);
-                } catch (IOException e) {
-                    throw new RuntimeException("파일 업로드 실패: " + e.getMessage(), e);
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("잘못된 이미지 데이터: " + e.getMessage(), e);
                 }
             }
             gallery.getImages().addAll(imageEntities);
         }
 
         // 이미지 삭제
-        if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
+        if (updateGalleryRequest.getDeleteImageIds() != null && !updateGalleryRequest.getDeleteImageIds().isEmpty()) {
             List<Image> imagesToRemove = gallery.getImages().stream()
-                    .filter(image -> request.getDeleteImageIds().contains(image.getId()))
+                    .filter(image -> updateGalleryRequest.getDeleteImageIds().contains(image.getId()))
                     .collect(Collectors.toList());
 
             for (Image image : imagesToRemove) {

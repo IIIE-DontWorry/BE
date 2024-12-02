@@ -27,9 +27,8 @@ public class GalleryDTO {
     @Getter
     @Setter
     @Builder
-    public static class ImageInfo {
-        private Long imageId;
-        private String imageUrl;
+    public static class GetRecentGalleryResponse {
+        private List<GetGalleryResponse> galleryInfo;
     }
 
     @Getter
@@ -45,7 +44,15 @@ public class GalleryDTO {
     public static class UpdateGalleryRequest {
         private Long galleryId;
         private String title;
-        private List<MultipartFile> addImages;
+        private List<String> addImages;
         private List<Long> deleteImageIds;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class ImageInfo {
+        private Long imageId;
+        private String imageUrl;
     }
 }
