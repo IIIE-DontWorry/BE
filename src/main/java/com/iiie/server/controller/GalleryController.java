@@ -14,17 +14,25 @@ public class GalleryController {
 
     public GalleryController(GalleryService galleryService) { this.galleryService = galleryService; }
 
-    @PostMapping("")
+    @PostMapping("/{caregiverId}/{guardianId}/{patientId}")
     @Operation(summary = "갤러리 조회", description = "전체 사용자들은 환자의 갤러리를 조회합니다.")
-    public SuccessResponse<List<GalleryDTO.GetGalleryResponse>> getImages(@RequestBody GalleryDTO.GetGalleryRequest getGalleryRequest) {
-        List<GalleryDTO.GetGalleryResponse> galleries = galleryService.getImages(getGalleryRequest);
+    public SuccessResponse<List<GalleryDTO.GetGalleryResponse>> getGalleries(
+            @PathVariable(name="caregiverId") Long caregiverId,
+            @PathVariable(name="guardianId") Long guardianId,
+            @PathVariable(name="patientId") Long patientId
+            ) {
+        List<GalleryDTO.GetGalleryResponse> galleries = galleryService.getGalleries(caregiverId, guardianId, patientId);
         return new SuccessResponse<>("이미지 조회 완료", galleries);
     }
 
-    @PostMapping("/recent")
+    @PostMapping("/recent/{caregiverId}/{guardianId}/{patientId}")
     @Operation(summary = "최근 갤러리 조회", description = "전체 사용자들은 환자의 최근 갤러리 3개를 조회합니다.")
-    public SuccessResponse<List<GalleryDTO.GetGalleryResponse>> getRecentGalleries(@RequestBody GalleryDTO.GetGalleryRequest getGalleryRequest) {
-        List<GalleryDTO.GetGalleryResponse> galleries = galleryService.getRecentGalleries(getGalleryRequest);
+    public SuccessResponse<List<GalleryDTO.GetGalleryResponse>> getRecentGalleries(
+            @PathVariable(name="caregiverId") Long caregiverId,
+            @PathVariable(name="guardianId") Long guardianId,
+            @PathVariable(name="patientId") Long patientId
+            ) {
+        List<GalleryDTO.GetGalleryResponse> galleries = galleryService.getRecentGalleries(caregiverId, guardianId, patientId);
         return new SuccessResponse<>("최근 갤러리 조회 완료", galleries);
     }
 
