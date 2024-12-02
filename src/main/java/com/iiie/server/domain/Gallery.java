@@ -1,14 +1,8 @@
 package com.iiie.server.domain;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -16,21 +10,38 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 public class Gallery {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "gallery_id")
-  private Long id;
+  private Long gallery_id;
+
+  @Column(nullable = false)
+  private String createdBy;
+
+  @Column(nullable = false)
+  private LocalDateTime createdAt;
+
+  @Column(columnDefinition = "TEXT", nullable = false)
+  private String title;
+
+  // ==시간관련==//
+  @PrePersist
+  private void prePersist() {
+    this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+  }
 
   // ===연관관계===//
-  @OneToOne
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "patient_id")
   private Patient patient;
 

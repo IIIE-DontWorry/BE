@@ -1,9 +1,15 @@
 package com.iiie.server.service;
 
+import com.iiie.server.convertor.ConvertorDTO;
 import com.iiie.server.domain.CareerHistory;
 import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.Guardian;
+import com.iiie.server.domain.Patient;
 import com.iiie.server.dto.CaregiverDTO;
+import com.iiie.server.dto.CaregiverDTO.InquiryCaregiver;
+import com.iiie.server.dto.GuardianDTO.InquiryGuardian;
+import com.iiie.server.dto.GuardianDTO.InquiryGuardian.GuardianInfo;
+import com.iiie.server.dto.GuardianDTO.InquiryGuardian.PatientInfo;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRepository;
@@ -70,13 +76,14 @@ public class CaregiverService {
             .orElseThrow(
                 () -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
 
-    CaregiverDTO.InquiryCaregiver inquiryCaregiver = new CaregiverDTO.InquiryCaregiver();
-    inquiryCaregiver.setName(caregiver.getName());
-    inquiryCaregiver.setPhone(caregiver.getPhone());
-    inquiryCaregiver.setHospital(caregiver.getHospital());
-    inquiryCaregiver.setPatientName(caregiver.getPatient().getName());
-
-    return inquiryCaregiver;
+    List<CareerHistory> careerHistories = caregiver.getCareerHistories();
+    return InquiryCaregiver.builder()
+        .name(caregiver.getName())
+        .phone(caregiver.getPhone())
+        .hospital(caregiver.getHospital())
+        .patientName(caregiver.getPatient().getName())
+        .careerHistories(ConvertorDTO.toCareerHistoryDTOs(careerHistories))
+        .build();
   }
 
   @Transactional
@@ -103,7 +110,9 @@ public class CaregiverService {
 
   @Transactional
   public void deleteCaregiver(Long caregiverId) {
-    Caregiver caregiver = caregiverRepository.findById(caregiverId)
+    Caregiver caregiver =
+        caregiverRepository
+            .findById(caregiverId)
             .orElseThrow(() -> new NotFoundException("caregiver", caregiverId, "존재하지 않는 간병인입니다."));
 
     Guardian guardian = caregiver.getGuardian();
@@ -116,21 +125,35 @@ public class CaregiverService {
   }
 
   @Transactional(readOnly = true)
-  public CaregiverDTO.GuardianProfile inquiryGuardianProfile(Long caregiverId) {
+  public InquiryGuardian inquiryGuardianProfile(Long caregiverId) {
     Caregiver caregiver =
         caregiverRepository
             .findById(caregiverId)
             .orElseThrow(() -> new NotFoundException("caregiver", caregiverId, "존재하지 않는 간병인입니다."));
 
-    if (caregiver.getGuardian() == null) {
+    Guardian guardian = caregiver.getGuardian();
+    if (guardian == null) {
       throw new NotFoundException("caregiver", caregiverId, "간병인에 연결된 보호자가 없습니다.");
     }
 
-    CaregiverDTO.GuardianProfile guardianProfile = new CaregiverDTO.GuardianProfile();
-    guardianProfile.setName(caregiver.getGuardian().getName());
-    guardianProfile.setPhone(caregiver.getGuardian().getPhone());
-    guardianProfile.setAddress(caregiver.getGuardian().getAddress());
+    GuardianInfo guardianInfo =
+        GuardianInfo.builder()
+            .name(guardian.getName())
+            .phone(guardian.getPhone())
+            .address(guardian.getAddress())
+            .build();
 
-    return guardianProfile;
+    Patient patient = guardian.getPatient();
+
+    PatientInfo patientInfo =
+        PatientInfo.builder()
+            .name(patient.getName())
+            .age(patient.getAge())
+            .diseaseName(patient.getDiseaseName())
+            .hospitalName(patient.getHospitalName())
+            .MedicationInfos(ConvertorDTO.toMedicationInfos(patient.getMedicationChecks()))
+            .build();
+
+    return InquiryGuardian.builder().guardianInfo(guardianInfo).patientInfo(patientInfo).build();
   }
 }
