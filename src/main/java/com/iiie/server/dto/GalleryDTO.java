@@ -26,13 +26,6 @@ public class GalleryDTO {
 
     @Getter
     @Setter
-    @Builder
-    public static class GetRecentGalleryResponse {
-        private List<GetGalleryResponse> galleryInfo;
-    }
-
-    @Getter
-    @Setter
     public static class UploadGallery {
         private String createdBy;
         private List<String> images;

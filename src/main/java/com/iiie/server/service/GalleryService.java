@@ -3,33 +3,30 @@ import com.iiie.server.domain.*;
 import com.iiie.server.dto.GalleryDTO;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.GalleryRepository;
-import com.iiie.server.repository.CaregiverRepository;
-import com.iiie.server.repository.GuardianRepository;
 import com.iiie.server.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
 
+import java.util.Map;
 import java.util.Base64;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
-import java.io.IOException;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Collections;
+import java.time.LocalDateTime;
 
 @Service
 @Transactional(readOnly = true)
 public class GalleryService {
     private final GalleryRepository galleryRepository;
-    private final CaregiverRepository caregiverRepository;
-    private final GuardianRepository guardianRepository;
     private final PatientRepository patientRepository;
     private final S3Client s3Client;
 
@@ -42,10 +39,8 @@ public class GalleryService {
     @Value("${aws.s3.bucket-url}")
     private String bucketUrl;
 
-    public GalleryService(GalleryRepository galleryRepository, CaregiverRepository caregiverRepository, GuardianRepository guardianRepository, PatientRepository patientRepository, S3Client s3Client) {
+    public GalleryService(GalleryRepository galleryRepository, PatientRepository patientRepository, S3Client s3Client) {
         this.galleryRepository = galleryRepository;
-        this.caregiverRepository = caregiverRepository;
-        this.guardianRepository = guardianRepository;
         this.patientRepository = patientRepository;
         this.s3Client = s3Client;
     }
@@ -83,30 +78,39 @@ public class GalleryService {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new NotFoundException("patient", patientId, "존재하지 않는 환자입니다."));
 
-        // 환자의 최근 갤러리 3개를 가져옵니다.
-        List<Gallery> galleries = galleryRepository.findTop3ByPatientIdOrderByCreatedAtDesc(patient.getId());
+        // 최근 이미지 3개 조회
+        List<Image> recentImages = galleryRepository.findTop3ImagesByPatientIdOrderByIdDesc(patient.getId());
 
-        // 갤러리와 이미지 정보를 DTO로 변환합니다.
-        List<GalleryDTO.GetGalleryResponse> responses = galleries.stream().map(gallery -> {
-            List<GalleryDTO.ImageInfo> imagesInfo = gallery.getImages().stream()
-                    .map(image -> GalleryDTO.ImageInfo.builder()
-                            .imageId(image.getId())
-                            .imageUrl(image.getImageUrl())
-                            .build())
-                    .collect(Collectors.toList());
+        if (recentImages.isEmpty()) {
+            return Collections.emptyList(); // 이미지가 없을 경우 빈 리스트 반환
+        }
 
-            return GalleryDTO.GetGalleryResponse.builder()
+        List<GalleryDTO.GetGalleryResponse> responses = new ArrayList<>();
+        int totalImageCount = 0; // 반환된 총 이미지 개수
+
+        // 이미지별로 갤러리 데이터를 생성
+        for (Image image : recentImages) {
+            if (totalImageCount >= 3) break; // 총 이미지 개수가 3개가 되면 종료
+
+            Gallery gallery = image.getGallery();
+            responses.add(GalleryDTO.GetGalleryResponse.builder()
                     .galleryId(gallery.getGallery_id())
                     .createdBy(gallery.getCreatedBy())
                     .createdAt(gallery.getCreatedAt())
                     .title(gallery.getTitle())
-                    .images(imagesInfo)
-                    .build();
-        }).collect(Collectors.toList());
+                    .images(Collections.singletonList(
+                            GalleryDTO.ImageInfo.builder()
+                                    .imageId(image.getId())
+                                    .imageUrl(image.getImageUrl())
+                                    .build()
+                    ))
+                    .build());
+
+            totalImageCount++; // 이미지 개수 증가
+        }
 
         return responses;
     }
-
 
     @Transactional
     public void uploadImages(Long caregiverId, Long guardianId, Long patientId, GalleryDTO.UploadGallery uploadGallery) {
