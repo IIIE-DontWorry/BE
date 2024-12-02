@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 public class GalleryDTO {
   private Long id;
@@ -25,28 +24,28 @@ public class GalleryDTO {
     private List<ImageInfo> images;
   }
 
-    @Getter
-    @Setter
-    public static class UploadGallery {
-        private String createdBy;
-        private List<String> images;
-        private String title;
-    }
+  @Getter
+  @Setter
+  public static class UploadGallery {
+    private String createdBy;
+    private List<String> images;
+    private String title;
+  }
 
-    @Getter
-    @Setter
-    public static class UpdateGalleryRequest {
-        private Long galleryId;
-        private String title;
-        private List<String> addImages;
-        private List<Long> deleteImageIds;
-    }
+  @Getter
+  @Setter
+  public static class UpdateGalleryRequest {
+    private Long galleryId;
+    private String title;
+    private List<String> addImages;
+    private List<Long> deleteImageIds;
+  }
 
-    @Getter
-    @Setter
-    @Builder
-    public static class ImageInfo {
-        private Long imageId;
-        private String imageUrl;
-    }
+  @Getter
+  @Setter
+  @Builder
+  public static class ImageInfo {
+    private Long imageId;
+    private String imageUrl;
+  }
 }
