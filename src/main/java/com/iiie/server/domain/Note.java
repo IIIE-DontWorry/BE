@@ -11,7 +11,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,5 +51,4 @@ public class Note {
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "guardian_id", nullable = false)
   private Guardian guardian;
-
 }
