@@ -15,6 +15,8 @@ import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRepository;
 import java.util.List;
 import java.util.UUID;
+
+import com.iiie.server.repository.PatientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +26,13 @@ public class CaregiverService {
 
   private final GuardianRepository guardianRepository;
   private final CaregiverRepository caregiverRepository;
+  private final PatientRepository patientRepository;
 
   public CaregiverService(
-      GuardianRepository guardianRepository, CaregiverRepository caregiverRepository) {
+          GuardianRepository guardianRepository, CaregiverRepository caregiverRepository, PatientRepository patientRepository) {
     this.guardianRepository = guardianRepository;
     this.caregiverRepository = caregiverRepository;
+    this.patientRepository = patientRepository;
   }
 
   public Caregiver createCaregiver(
@@ -69,41 +73,82 @@ public class CaregiverService {
   }
 
   @Transactional(readOnly = true)
-  public CaregiverDTO.InquiryCaregiver inquiryInfo(Long caregiverId) {
+  public CaregiverDTO.UpdateCaregiver inquiryInfo(Long caregiverId, Long patientId) {
     Caregiver caregiver =
         caregiverRepository
             .findById(caregiverId)
-            .orElseThrow(
-                () -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
+            .orElseThrow(() -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
+    Patient patient = patientRepository
+            .findById(patientId)
+            .orElseThrow(() -> new NotFoundException("patient: ", patientId, "존재하지 않는 환자입니다."));
 
-    List<CareerHistory> careerHistories = caregiver.getCareerHistories();
-    return InquiryCaregiver.builder()
-        .name(caregiver.getName())
-        .phone(caregiver.getPhone())
-        .hospital(caregiver.getHospital())
-        .patientName(caregiver.getPatient().getName())
-        .careerHistories(ConvertorDTO.toCareerHistoryDTOs(careerHistories))
-        .build();
+    // DTO 반환
+    CaregiverDTO.UpdateCaregiver updatedCaregiver = new CaregiverDTO.UpdateCaregiver();
+    updatedCaregiver.setCaregiverName(caregiver.getName());
+    updatedCaregiver.setPhone(caregiver.getPhone());
+    updatedCaregiver.setHospital(caregiver.getHospital());
+    updatedCaregiver.setCarrierHistory(caregiver.getCareerHistories().stream()
+            .map(CareerHistory::getDescription)
+            .toList());
+    updatedCaregiver.setPatientName(patient.getName());
+    updatedCaregiver.setAge(patient.getAge());
+    updatedCaregiver.setDiseaseName(patient.getDiseaseName());
+    updatedCaregiver.setHospitalName(patient.getHospitalName());
+    updatedCaregiver.setAddress(patient.getAddress());
+
+    return updatedCaregiver;
   }
 
   @Transactional
-  public CaregiverDTO.UpdateCaregiver updateInfo(
-      Long caregiverId, CaregiverDTO.UpdateCaregiver updateCaregiver) {
-    Caregiver caregiver =
-        caregiverRepository
+  public CaregiverDTO.UpdateCaregiver updateInfo(Long caregiverId, Long patientId, CaregiverDTO.UpdateCaregiver updateCaregiver) {
+    Caregiver caregiver = caregiverRepository
             .findById(caregiverId)
-            .orElseThrow(
-                () -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
+            .orElseThrow(() -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
 
-    caregiver.setName(updateCaregiver.getName());
+    Patient patient = patientRepository
+            .findById(patientId)
+            .orElseThrow(() -> new NotFoundException("patient: ", patientId, "존재하지 않는 환자입니다."));
+
+    // Caregiver 기본 정보 업데이트
+    caregiver.setName(updateCaregiver.getCaregiverName());
     caregiver.setPhone(updateCaregiver.getPhone());
     caregiver.setHospital(updateCaregiver.getHospital());
+
+    // CareerHistory description 덮어쓰기
+    List<CareerHistory> existingHistories = caregiver.getCareerHistories();
+    List<String> newDescriptions = updateCaregiver.getCarrierHistory();
+
+    if (existingHistories.size() == newDescriptions.size()) {
+      for (int i = 0; i < existingHistories.size(); i++) {
+        existingHistories.get(i).setDescription(newDescriptions.get(i));
+      }
+    } else {
+      throw new IllegalArgumentException("CareerHistory 리스트 크기가 맞지 않습니다.");
+    }
+
     caregiverRepository.save(caregiver);
 
+    // Patient 정보 업데이트
+    patient.setName(updateCaregiver.getPatientName());
+    patient.setAge(updateCaregiver.getAge());
+    patient.setDiseaseName(updateCaregiver.getDiseaseName());
+    patient.setHospitalName(updateCaregiver.getHospitalName());
+    patient.setAddress(updateCaregiver.getAddress());
+    patientRepository.save(patient);
+
+    // DTO 반환
     CaregiverDTO.UpdateCaregiver updatedCaregiver = new CaregiverDTO.UpdateCaregiver();
-    updatedCaregiver.setName(caregiver.getName());
+    updatedCaregiver.setCaregiverName(caregiver.getName());
     updatedCaregiver.setPhone(caregiver.getPhone());
     updatedCaregiver.setHospital(caregiver.getHospital());
+    updatedCaregiver.setCarrierHistory(caregiver.getCareerHistories().stream()
+            .map(CareerHistory::getDescription)
+            .toList());
+    updatedCaregiver.setPatientName(patient.getName());
+    updatedCaregiver.setAge(patient.getAge());
+    updatedCaregiver.setDiseaseName(patient.getDiseaseName());
+    updatedCaregiver.setHospitalName(patient.getHospitalName());
+    updatedCaregiver.setAddress(patient.getAddress());
 
     return updatedCaregiver;
   }

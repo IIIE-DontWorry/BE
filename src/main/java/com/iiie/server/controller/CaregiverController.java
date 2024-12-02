@@ -31,20 +31,24 @@ public class CaregiverController {
     return new SuccessResponse<>("간병인이 가입이 완료되었습니다.", caregiver);
   }
 
-  @GetMapping("/myPage/{caregiverId}")
+  @GetMapping("/myPage/{caregiverId}/{patientId}")
   @Operation(summary = "마이 페이지 조회", description = "간병인은 자신의 기본 정보를 확인할 수 있다.")
-  public SuccessResponse<CaregiverDTO.InquiryCaregiver> inquiryInfo(
-      @PathVariable Long caregiverId) {
-    CaregiverDTO.InquiryCaregiver inquiryInfo = caregiverService.inquiryInfo(caregiverId);
+  public SuccessResponse<CaregiverDTO.UpdateCaregiver> inquiryInfo(
+      @PathVariable Long caregiverId,
+      @PathVariable Long patientId
+      ) {
+    CaregiverDTO.UpdateCaregiver inquiryInfo = caregiverService.inquiryInfo(caregiverId, patientId);
     return new SuccessResponse<>("간병인 마이 페이지 조회 완료", inquiryInfo);
   }
 
-  @PatchMapping("/myPage/update/{caregiverId}")
+  @PatchMapping("/myPage/update/{caregiverId}/{patientId}")
   @Operation(summary = "간병인 정보 수정", description = "간병인은 자신의 기본 정보를 수정할 수 있다.")
   public SuccessResponse<CaregiverDTO.UpdateCaregiver> updateInfo(
-      @PathVariable Long caregiverId, @RequestBody CaregiverDTO.UpdateCaregiver updateCaregiver) {
+      @PathVariable Long caregiverId,
+      @PathVariable Long patientId,
+      @RequestBody CaregiverDTO.UpdateCaregiver updateCaregiver) {
     CaregiverDTO.UpdateCaregiver updateInfo =
-        caregiverService.updateInfo(caregiverId, updateCaregiver);
+        caregiverService.updateInfo(caregiverId, patientId, updateCaregiver);
     return new SuccessResponse<>("간병인 정보 수정 완료", updateInfo);
   }
 

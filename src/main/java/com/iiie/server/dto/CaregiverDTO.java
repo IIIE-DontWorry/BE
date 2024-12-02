@@ -1,5 +1,6 @@
 package com.iiie.server.dto;
 
+import com.iiie.server.domain.CareerHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.UUID;
@@ -57,9 +58,15 @@ public class CaregiverDTO {
   @Getter
   @Setter
   public static class UpdateCaregiver {
-    private String name;
+    private String caregiverName;
     private String phone;
     private String hospital;
+    private List<String> carrierHistory;
+    private String patientName;
+    private Integer age;
+    private String diseaseName;
+    private String hospitalName;
+    private String address;
   }
 
   @Getter
