@@ -1,7 +1,6 @@
 package com.iiie.server.domain;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -10,8 +9,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @Entity
@@ -26,7 +25,7 @@ public class Gallery {
   @Column(name = "gallery_id")
   private Long gallery_id;
 
-  @Column(nullable=false)
+  @Column(nullable = false)
   private String createdBy;
 
   @Column(nullable = false)

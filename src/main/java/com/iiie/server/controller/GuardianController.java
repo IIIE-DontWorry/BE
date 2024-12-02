@@ -1,6 +1,7 @@
 package com.iiie.server.controller;
 
 import com.iiie.server.domain.Guardian;
+import com.iiie.server.dto.CaregiverDTO.InquiryCaregiver;
 import com.iiie.server.dto.GuardianAndPatientDTO;
 import com.iiie.server.dto.GuardianDTO;
 import com.iiie.server.dto.GuardianDTO.CreationGuardian;
@@ -8,12 +9,7 @@ import com.iiie.server.dto.PatientDTO.CreationPatient;
 import com.iiie.server.service.GuardianService;
 import com.iiie.server.utils.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/guardian")
@@ -53,7 +49,7 @@ public class GuardianController {
     return new SuccessResponse<>("보호자 마이 페이지 조회 완료", inquiryInfo);
   }
 
-  @PostMapping("/myPage/update/{guardianId}")
+  @PatchMapping("/myPage/update/{guardianId}")
   @Operation(summary = "보호자 정보 수정", description = "보호자는 자신의 기본 정보를 수정할 수 있다.")
   public SuccessResponse<GuardianDTO.UpdateGuardian> updateInfo(
       @PathVariable Long guardianId, @RequestBody GuardianDTO.UpdateGuardian updateGuardian) {
@@ -61,19 +57,17 @@ public class GuardianController {
     return new SuccessResponse<>("보호자 정보 수정 완료", updateInfo);
   }
 
-  @PostMapping("/myPage/delete/{guardianId}")
+  @DeleteMapping("/myPage/delete/{guardianId}")
   @Operation(summary = "보호자 탈퇴", description = "보호자는 자신의 계정을 삭제할 수 있다.")
-  public SuccessResponse<String> deleteGuardian(@PathVariable Long guardianId) {
+  public SuccessResponse<Void> deleteGuardian(@PathVariable Long guardianId) {
     guardianService.deleteGuardian(guardianId);
     return new SuccessResponse<>("보호자 탈퇴 완료", null);
   }
 
   @GetMapping("/myPage/caregiver/{guardianId}")
   @Operation(summary = "간병인 정보 조회", description = "보호자는 연결된 간병인의 기본 정보를 조회 할 수 있다.")
-  public SuccessResponse<GuardianDTO.CaregiverProfile> inquiryCaregiverProfile(
-      @PathVariable Long guardianId) {
-    GuardianDTO.CaregiverProfile caregiverProfile =
-        guardianService.inquiryCaregiverProfile(guardianId);
+  public SuccessResponse<InquiryCaregiver> inquiryCaregiverProfile(@PathVariable Long guardianId) {
+    InquiryCaregiver caregiverProfile = guardianService.inquiryCaregiverProfile(guardianId);
     return new SuccessResponse<>("간병인 정보 조회 완료", caregiverProfile);
   }
 }

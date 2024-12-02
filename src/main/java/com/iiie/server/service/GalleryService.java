@@ -45,34 +45,8 @@ public class GalleryService {
         this.s3Client = s3Client;
     }
 
-    @Transactional(readOnly = true)
-    public List<GalleryDTO.GetGalleryResponse> getGalleries(Long caregiverId, Long guardianId, Long patientId) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new NotFoundException("patient", patientId, "존재하지 않는 환자입니다."));
-
-        // 환자의 모든 갤러리 가져오기
-        List<Gallery> galleries = patient.getGalleries();
-
-        // 갤러리와 이미지 정보를 DTO로 변환
-        List<GalleryDTO.GetGalleryResponse> responses = galleries.stream().map(gallery -> {
-            List<GalleryDTO.ImageInfo> imagesInfo = gallery.getImages().stream()
-                    .map(image -> GalleryDTO.ImageInfo.builder()
-                            .imageId(image.getId())
-                            .imageUrl(image.getImageUrl())
-                            .build())
-                    .collect(Collectors.toList());
-
-            return GalleryDTO.GetGalleryResponse.builder()
-                    .galleryId(gallery.getGallery_id())
-                    .createdBy(gallery.getCreatedBy())
-                    .createdAt(gallery.getCreatedAt())
-                    .title(gallery.getTitle())
-                    .images(imagesInfo)
-                    .build();
-        }).collect(Collectors.toList());
-
-        return responses;
-    }
+        // 데이터 URL에서 content-type 추출
+        String contentType = dataUrl.split(":")[1].split(";")[0]; // 예: "image/png"
 
     public List<GalleryDTO.GetGalleryResponse> getRecentGalleries(Long caregiverId, Long guardianId, Long patientId) {
         Patient patient = patientRepository.findById(patientId)
@@ -166,22 +140,46 @@ public class GalleryService {
         }
         gallery.setImages(imageEntities);
 
+        // 이미지 엔티티 생성
+        Image image = Image.builder().imageUrl(imageUrl).gallery(gallery).build();
 
-        // 데이터베이스 저장
-        galleryRepository.save(gallery);
+        imageEntities.add(image);
+      } catch (IllegalArgumentException e) {
+        throw new RuntimeException("잘못된 이미지 데이터: " + e.getMessage(), e);
+      }
+    }
+    gallery.setImages(imageEntities);
+
+    // 데이터베이스 저장
+    galleryRepository.save(gallery);
+  }
+
+  @Transactional
+  public void deleteGallery(Long galleryId) {
+    Gallery gallery =
+        galleryRepository
+            .findById(galleryId)
+            .orElseThrow(() -> new NotFoundException("gallery", galleryId, "존재하지 않는 갤러리입니다."));
+
+    // S3에서 이미지 삭제
+    for (Image image : gallery.getImages()) {
+      deleteFileFromS3(image.getImageUrl());
     }
 
-    @Transactional
-    public void deleteGallery(Long galleryId) {
-        Gallery gallery = galleryRepository.findById(galleryId)
-                .orElseThrow(() -> new NotFoundException("gallery", galleryId, "존재하지 않는 갤러리입니다."));
+    galleryRepository.delete(gallery);
+  }
 
-        // S3에서 이미지 삭제
-        for (Image image : gallery.getImages()) {
-            deleteFileFromS3(image.getImageUrl());
-        }
+  @Transactional
+  public void updateGallery(GalleryDTO.UpdateGalleryRequest request) {
+    Gallery gallery =
+        galleryRepository
+            .findById(request.getGalleryId())
+            .orElseThrow(
+                () -> new NotFoundException("gallery", request.getGalleryId(), "존재하지 않는 갤러리입니다."));
 
-        galleryRepository.delete(gallery);
+    // 제목 수정
+    if (request.getTitle() != null) {
+      gallery.setTitle(request.getTitle());
     }
 
     @Transactional
@@ -243,41 +241,51 @@ public class GalleryService {
             List<Image> imagesToRemove = gallery.getImages().stream()
                     .filter(image -> updateGalleryRequest.getDeleteImageIds().contains(image.getId()))
                     .collect(Collectors.toList());
-
-            for (Image image : imagesToRemove) {
-                gallery.getImages().remove(image);
-                deleteFileFromS3(image.getImageUrl());
-            }
+          
+          imageEntities.add(image);
+        } catch (IOException e) {
+          throw new RuntimeException("파일 업로드 실패: " + e.getMessage(), e);
         }
+      }
+      gallery.getImages().addAll(imageEntities);
     }
 
-    public String uploadFileToS3(String fileName, InputStream inputStream, long contentLength) {
-        // S3 Key 생성
-        String key = directoryPath + fileName;
-        
-        // S3에 파일 업로드
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .contentLength(contentLength)
-                .build();
+    // 이미지 삭제
+    if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
+      List<Image> imagesToRemove =
+          gallery.getImages().stream()
+              .filter(image -> request.getDeleteImageIds().contains(image.getId()))
+              .collect(Collectors.toList());
 
-        s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, contentLength));
-
-        // S3에 업로드된 파일의 URL 반환
-        return bucketUrl + key;
+      for (Image image : imagesToRemove) {
+        gallery.getImages().remove(image);
+        deleteFileFromS3(image.getImageUrl());
+      }
     }
+  }
 
-    public void deleteFileFromS3(String imageUrl) {
-        // S3 키 추출
-        String key = imageUrl.replace(bucketUrl, "");
+  public String uploadFileToS3(String fileName, InputStream inputStream, long contentLength) {
+    // S3 Key 생성
+    String key = directoryPath + fileName;
 
-        // S3 객체 삭제 요청
-        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .build();
+    // S3에 파일 업로드
+    PutObjectRequest putObjectRequest =
+        PutObjectRequest.builder().bucket(bucketName).key(key).contentLength(contentLength).build();
 
-        s3Client.deleteObject(deleteObjectRequest);
-    }
+    s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, contentLength));
+
+    // S3에 업로드된 파일의 URL 반환
+    return bucketUrl + key;
+  }
+
+  public void deleteFileFromS3(String imageUrl) {
+    // S3 키 추출
+    String key = imageUrl.replace(bucketUrl, "");
+
+    // S3 객체 삭제 요청
+    DeleteObjectRequest deleteObjectRequest =
+        DeleteObjectRequest.builder().bucket(bucketName).key(key).build();
+
+    s3Client.deleteObject(deleteObjectRequest);
+  }
 }

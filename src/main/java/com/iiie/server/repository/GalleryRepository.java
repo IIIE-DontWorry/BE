@@ -5,7 +5,6 @@ import com.iiie.server.domain.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import java.util.List;
 
 public interface GalleryRepository extends JpaRepository<Gallery, Long> {
     // 환자의 최근 이미지 3개 조회

@@ -3,7 +3,7 @@ package com.iiie.server.convertor;
 import com.iiie.server.domain.CareSchedule;
 import com.iiie.server.domain.GuardianRequest;
 import com.iiie.server.domain.MedicationCheck;
-import com.iiie.server.dto.CareScheduleDTO.CareScheduleRequest;
+import com.iiie.server.dto.CareScheduleDTO.PatchCareScheduleRequest;
 import com.iiie.server.dto.GuardianRequestDTO;
 import com.iiie.server.dto.MedicationDTO.MedicationCheckRequest;
 import com.iiie.server.repository.CareScheduleRepository;
@@ -12,19 +12,25 @@ import com.iiie.server.repository.MedicationCheckRepository;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EntityUpdater {
 
   public static CareSchedule toCareSchedule(
-      CareScheduleRequest dto, CareScheduleRepository careScheduleRepository) {
-    CareSchedule careSchedule = careScheduleRepository.findById(dto.getId()).get();
-    careSchedule.updateFields(dto.getDescription(), LocalTime.of(dto.getHour(), dto.getMinute()));
-    return careSchedule;
+      PatchCareScheduleRequest dto, CareScheduleRepository careScheduleRepository) {
+    Optional<CareSchedule> careSchedule = careScheduleRepository.findById(dto.getId());
+    if (!careSchedule.isPresent()) {
+      return null;
+    }
+    careSchedule
+        .get()
+        .updateFields(dto.getDescription(), LocalTime.of(dto.getHour(), dto.getMinute()));
+    return careSchedule.get();
   }
 
   public static List<CareSchedule> toCareScheduleList(
-      List<CareScheduleRequest> dtos, CareScheduleRepository careScheduleRepository) {
+      List<PatchCareScheduleRequest> dtos, CareScheduleRepository careScheduleRepository) {
 
     return dtos.stream()
         .map(dto -> EntityUpdater.toCareSchedule(dto, careScheduleRepository))
