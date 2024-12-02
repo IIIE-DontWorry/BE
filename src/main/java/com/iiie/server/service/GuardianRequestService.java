@@ -31,7 +31,7 @@ public class GuardianRequestService {
             .findById(guardianId)
             .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자 ID입니다."));
 
-    // TODO : 나머지 요청사항은 old가 되도록
+    // 나머지 요청사항은 old가 되도록
     Optional<List<GuardianRequest>> optionalGuardianRequest =
         guardianRequestRepository.findAllByGuardianId(guardianId);
     if (optionalGuardianRequest.isPresent()) {
@@ -50,6 +50,5 @@ public class GuardianRequestService {
                 })
             .toList();
     guardianRequestRepository.saveAll(guardianRequests);
-    // TODO(THINK ABOUT) :  현재 간병보고서와 연관관계 매핑 안함. init메서드 보완하면서 살펴보자.(근데 이 시점에 매핑 안되는게 맞긴해.)
   }
 }
