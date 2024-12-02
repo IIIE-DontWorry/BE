@@ -15,20 +15,13 @@ public class GalleryDTO {
 
     @Getter
     @Setter
-    public static class GetGalleryRequest {
-        private Long caregiverId;
-        private Long guardianId;
-    }
-
-    @Getter
-    @Setter
     @Builder
     public static class GetGalleryResponse {
         private Long galleryId;
         private String createdBy;
         private LocalDateTime createdAt;
-        private List<ImageInfo> images;
         private String title;
+        private List<ImageInfo> images;
     }
 
     @Getter

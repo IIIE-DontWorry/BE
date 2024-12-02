@@ -51,23 +51,9 @@ public class GalleryService {
     }
 
     @Transactional(readOnly = true)
-    public List<GalleryDTO.GetGalleryResponse> getImages(GalleryDTO.GetGalleryRequest getGalleryRequest) {
-        Patient patient = null;
-
-        // 간병인일 경우
-        if (getGalleryRequest.getCaregiverId() != null) {
-            Caregiver caregiver = caregiverRepository.findById(getGalleryRequest.getCaregiverId())
-                    .orElseThrow(() -> new NotFoundException("caregiver", getGalleryRequest.getCaregiverId(), "존재하지 않는 간병인입니다."));
-            patient = caregiver.getPatient();
-        }
-        // 보호자일 경우
-        else if (getGalleryRequest.getGuardianId() != null) {
-            Guardian guardian = guardianRepository.findById(getGalleryRequest.getGuardianId())
-                    .orElseThrow(() -> new NotFoundException("guardian", getGalleryRequest.getGuardianId(), "존재하지 않는 보호자입니다."));
-            patient = guardian.getPatient();
-        } else {
-            throw new IllegalArgumentException("Caregiver ID나 Guardian ID 중 하나를 제공해야 합니다.");
-        }
+    public List<GalleryDTO.GetGalleryResponse> getGalleries(Long caregiverId, Long guardianId, Long patientId) {
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new NotFoundException("patient", patientId, "존재하지 않는 환자입니다."));
 
         // 환자의 모든 갤러리 가져오기
         List<Gallery> galleries = patient.getGalleries();
@@ -93,30 +79,12 @@ public class GalleryService {
         return responses;
     }
 
-    public List<GalleryDTO.GetGalleryResponse> getRecentGalleries(GalleryDTO.GetGalleryRequest getGalleryRequest) {
-        Patient patient = null;
-
-        // 간병인일 경우
-        if (getGalleryRequest.getCaregiverId() != null) {
-            Caregiver caregiver = caregiverRepository.findById(getGalleryRequest.getCaregiverId())
-                    .orElseThrow(() -> new NotFoundException("caregiver", getGalleryRequest.getCaregiverId(), "존재하지 않는 간병인입니다."));
-            patient = caregiver.getPatient();
-        }
-        // 보호자일 경우
-        else if (getGalleryRequest.getGuardianId() != null) {
-            Guardian guardian = guardianRepository.findById(getGalleryRequest.getGuardianId())
-                    .orElseThrow(() -> new NotFoundException("guardian", getGalleryRequest.getGuardianId(), "존재하지 않는 보호자입니다."));
-            patient = guardian.getPatient();
-        } else {
-            throw new IllegalArgumentException("Caregiver ID나 Guardian ID 중 하나를 제공해야 합니다.");
-        }
+    public List<GalleryDTO.GetGalleryResponse> getRecentGalleries(Long caregiverId, Long guardianId, Long patientId) {
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new NotFoundException("patient", patientId, "존재하지 않는 환자입니다."));
 
         // 환자의 최근 갤러리 3개를 가져옵니다.
         List<Gallery> galleries = galleryRepository.findTop3ByPatientIdOrderByCreatedAtDesc(patient.getId());
-
-        if (galleries.isEmpty()) {
-            return new ArrayList<>();
-        }
 
         // 갤러리와 이미지 정보를 DTO로 변환합니다.
         List<GalleryDTO.GetGalleryResponse> responses = galleries.stream().map(gallery -> {
