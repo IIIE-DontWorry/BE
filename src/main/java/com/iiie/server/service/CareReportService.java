@@ -113,11 +113,11 @@ public class CareReportService {
   }
 
   @Transactional
-  public CareReportResponse patchCareReport(Long careGiverId, CareReportPatchRequest request) {
+  public CareReportResponse patchCareReport(Long careReportId, CareReportPatchRequest request) {
     final LocalDate postedDate = LocalDate.parse(request.getPostedDate());
     CareReport careReport =
         careReportRepository
-            .findByCaregiverIdAndPostedDate(careGiverId, postedDate)
+            .findByIdAndPostedDate(careReportId, postedDate)
             .orElseThrow(() -> new NotFoundException("care_report", null, "존재하지 않는 간병 보고서입니다."));
 
     if (!request.getPatchCareScheduleRequests().isEmpty()) {
