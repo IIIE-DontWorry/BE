@@ -28,10 +28,15 @@ public class GalleryController {
         return new SuccessResponse<>("최근 갤러리 조회 완료", galleries);
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/upload/{caregiverId}/{guardianId}/{patientId}")
     @Operation(summary = "이미지 업로드", description = "선택한 이미지들을 업로드합니다.")
-    public SuccessResponse<Void> uploadImages(@ModelAttribute GalleryDTO.UploadGallery uploadGallery) {
-        galleryService.uploadImages(uploadGallery);
+    public SuccessResponse<Void> uploadImages(
+            @PathVariable (name = "caregiverId") Long caregiverId,
+            @PathVariable (name = "guardianId") Long guardianId,
+            @PathVariable (name = "patientId") Long patientId,
+            @RequestBody GalleryDTO.UploadGallery uploadGallery
+            ) {
+        galleryService.uploadImages(caregiverId, guardianId, patientId, uploadGallery);
         return new SuccessResponse<>("이미지 업로드 완료", null);
     }
 

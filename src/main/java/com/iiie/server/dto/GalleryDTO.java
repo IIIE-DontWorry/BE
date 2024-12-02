@@ -9,10 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class GalleryDTO {
     private Long id;
     private LocalDateTime createdAt;
-    private Long caregiverId;
-    private Long guardianId;
-    private Long createdBy;
+    private String createdBy;
     private String title;
+    private List<String> images;
 
     @Getter
     @Setter
@@ -26,7 +25,7 @@ public class GalleryDTO {
     @Builder
     public static class GetGalleryResponse {
         private Long galleryId;
-        private Long createdBy;
+        private String createdBy;
         private LocalDateTime createdAt;
         private List<ImageInfo> images;
         private String title;
@@ -43,9 +42,8 @@ public class GalleryDTO {
     @Getter
     @Setter
     public static class UploadGallery {
-        private Long caregiverId;
-        private Long guardianId;
-        private List<MultipartFile> images;
+        private String createdBy;
+        private List<String> images;
         private String title;
     }
 

@@ -5,6 +5,7 @@ import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.GalleryRepository;
 import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRepository;
+import com.iiie.server.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
 
+import java.util.Base64;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
@@ -27,6 +30,7 @@ public class GalleryService {
     private final GalleryRepository galleryRepository;
     private final CaregiverRepository caregiverRepository;
     private final GuardianRepository guardianRepository;
+    private final PatientRepository patientRepository;
     private final S3Client s3Client;
 
     @Value("${aws.s3.bucket-name}")
@@ -38,10 +42,11 @@ public class GalleryService {
     @Value("${aws.s3.bucket-url}")
     private String bucketUrl;
 
-    public GalleryService(GalleryRepository galleryRepository, CaregiverRepository caregiverRepository, GuardianRepository guardianRepository, S3Client s3Client) {
+    public GalleryService(GalleryRepository galleryRepository, CaregiverRepository caregiverRepository, GuardianRepository guardianRepository, PatientRepository patientRepository, S3Client s3Client) {
+        this.galleryRepository = galleryRepository;
         this.caregiverRepository = caregiverRepository;
         this.guardianRepository = guardianRepository;
-        this.galleryRepository = galleryRepository;
+        this.patientRepository = patientRepository;
         this.s3Client = s3Client;
     }
 
@@ -136,47 +141,44 @@ public class GalleryService {
 
 
     @Transactional
-    public void uploadImages(GalleryDTO.UploadGallery uploadGallery) {
-        Patient patient = null;
-        Gallery gallery = null;
-        
-        // 간병인일 경우
-        if (uploadGallery.getCaregiverId() != null) {
-            Caregiver caregiver = caregiverRepository.findById(uploadGallery.getCaregiverId())
-                    .orElseThrow(() -> new NotFoundException("caregiver", uploadGallery.getCaregiverId(), "존재하지 않는 간병인입니다."));
-            patient = caregiver.getPatient();
+    public void uploadImages(Long caregiverId, Long guardianId, Long patientId, GalleryDTO.UploadGallery uploadGallery) {
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new NotFoundException("patient", patientId, "존재하지 않는 환자입니다."));
 
-            // 갤러리 엔티티 생성
-            gallery = Gallery.builder()
-                    .createdBy(uploadGallery.getCaregiverId())
-                    .title(uploadGallery.getTitle())
-                    .patient(patient)
-                    .build();
-        }
-        // 보호자일 경우
-        else if (uploadGallery.getGuardianId() != null) {
-            Guardian guardian = guardianRepository.findById(uploadGallery.getGuardianId())
-                    .orElseThrow(() -> new NotFoundException("guardian", uploadGallery.getGuardianId(), "존재하지 않는 보호자입니다."));
-            patient = guardian.getPatient();
-
-            // 갤러리 엔티티 생성
-            gallery = Gallery.builder()
-                    .createdBy(uploadGallery.getGuardianId())
-                    .title(uploadGallery.getTitle())
-                    .patient(patient)
-                    .build();
-        } else {
-            throw new IllegalArgumentException("Caregiver ID나 Guardian ID 중 하나를 제공해야 합니다.");
-        }
+        // 갤러리 엔티티 생성
+        Gallery gallery = Gallery.builder()
+                .createdBy(uploadGallery.getCreatedBy())
+                .title(uploadGallery.getTitle())
+                .patient(patient)
+                .build();
 
         // S3에 이미지 업로드 및 이미지 엔티티 생성
         List<Image> imageEntities = new ArrayList<>();
-        for (MultipartFile file : uploadGallery.getImages()) {
-            try (InputStream inputStream = file.getInputStream()) {
-                String fileName = file.getOriginalFilename();
-                long contentLength = file.getSize();
+        for (String base64Image : uploadGallery.getImages()) {
+            try {
+                // Base64 문자열에서 데이터 분리
+                String[] parts = base64Image.split(",");
+                if (parts.length != 2) {
+                    throw new IllegalArgumentException("잘못된 Base64 이미지 데이터");
+                }
+                String dataUrl = parts[0]; // 데이터 URL(이미지 형식 포함)
+                String base64Data = parts[1];  //실제 이미지 데이터
 
-                // S3에 파일 업로드
+                // 데이터 URL에서 content-type 추출
+                String contentType = dataUrl.split(":")[1].split(";")[0]; // 예: "image/png"
+
+                // content-type에서 이미지 확장자 추출
+                String extension = contentType.substring(contentType.indexOf("/") + 1); // 예: "png"
+
+                // Base64 데이터 디코딩
+                byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+                InputStream inputStream = new ByteArrayInputStream(imageBytes);
+                long contentLength = imageBytes.length;
+
+                // 고유 파일 이름 생성
+                String fileName = UUID.randomUUID().toString() + "." + extension;
+
+                // S3에 업로드
                 String imageUrl = uploadFileToS3(fileName, inputStream, contentLength);
 
                 // 이미지 엔티티 생성
@@ -186,11 +188,12 @@ public class GalleryService {
                         .build();
 
                 imageEntities.add(image);
-            } catch (IOException e) {
-                throw new RuntimeException("파일 업로드 실패: " + e.getMessage(), e);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("잘못된 이미지 데이터: " + e.getMessage(), e);
             }
         }
         gallery.setImages(imageEntities);
+
 
         // 데이터베이스 저장
         galleryRepository.save(gallery);
@@ -259,7 +262,7 @@ public class GalleryService {
 
     public String uploadFileToS3(String fileName, InputStream inputStream, long contentLength) {
         // S3 Key 생성
-        String key = directoryPath + UUID.randomUUID().toString() + fileName;
+        String key = directoryPath + fileName;
         
         // S3에 파일 업로드
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()

@@ -27,7 +27,7 @@ public class Gallery {
   private Long gallery_id;
 
   @Column(nullable=false)
-  private Long createdBy;
+  private String createdBy;
 
   @Column(nullable = false)
   private LocalDateTime createdAt;
