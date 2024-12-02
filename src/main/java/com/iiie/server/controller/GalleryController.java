@@ -19,9 +19,9 @@ public class GalleryController {
 
   @GetMapping("/{caregiverId}/{guardianId}/{patientId}")
   @Operation(summary = "갤러리 조회", description = "전체 사용자들은 환자의 갤러리를 조회합니다.")
-  public SuccessResponse<List<GalleryDTO.GetGalleryResponse>> getGalleries(@PathVariable(name = "patientId") Long patientId) {
-    List<GalleryDTO.GetGalleryResponse> galleries =
-        galleryService.getGalleries(patientId);
+  public SuccessResponse<List<GalleryDTO.GetGalleryResponse>> getGalleries(
+      @PathVariable(name = "patientId") Long patientId) {
+    List<GalleryDTO.GetGalleryResponse> galleries = galleryService.getGalleries(patientId);
     return new SuccessResponse<>("이미지 조회 완료", galleries);
   }
 
@@ -29,8 +29,7 @@ public class GalleryController {
   @Operation(summary = "최근 갤러리(이미지) 조회", description = "전체 사용자들은 환자의 최근 이미지 3개를 조회합니다.")
   public SuccessResponse<List<GalleryDTO.GetGalleryResponse>> getRecentGalleries(
       @PathVariable(name = "patientId") Long patientId) {
-    List<GalleryDTO.GetGalleryResponse> galleries =
-        galleryService.getRecentGalleries(patientId);
+    List<GalleryDTO.GetGalleryResponse> galleries = galleryService.getRecentGalleries(patientId);
     return new SuccessResponse<>("최근 갤러리 조회 완료", galleries);
   }
 
