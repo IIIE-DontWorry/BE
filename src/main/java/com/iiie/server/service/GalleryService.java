@@ -176,7 +176,7 @@ public class GalleryService {
         throw new RuntimeException("잘못된 이미지 데이터: " + e.getMessage(), e);
       }
     }
-    gallery.setImages(imageEntities);
+    gallery.addImages(imageEntities);
 
     // 데이터베이스 저장
     galleryRepository.save(gallery);

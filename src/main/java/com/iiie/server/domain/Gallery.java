@@ -48,4 +48,13 @@ public class Gallery {
   @OneToMany(mappedBy = "gallery", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private List<Image> images = new ArrayList<>();
+
+  public void addImages(List<Image> images) {
+    for (Image image : images) {
+      if(!this.images.contains(image)) {
+        this.images.add(image);
+        image.setGallery(this);
+      }
+    }
+  }
 }
