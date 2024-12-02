@@ -114,6 +114,15 @@ public class CareReport {
     this.mealExcretion = mealExcretion;
   }
 
+  public void addGuardianRequests(List<GuardianRequest> guardianRequests) {
+    for (GuardianRequest guardianRequest : guardianRequests) {
+      if (!this.getGuardianRequests().contains(guardianRequest)) {
+        this.getGuardianRequests().add(guardianRequest);
+        guardianRequest.setCareReport(this);
+      }
+    }
+  }
+
   public void changePostedDate(String postedDate) {
     this.postedDate = LocalDate.parse(postedDate);
   }

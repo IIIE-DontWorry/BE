@@ -51,6 +51,7 @@ public class GuardianRequest {
     ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
     this.createdAt = nowInKorea.toLocalDateTime();
     this.updatedAt = nowInKorea.toLocalDateTime();
+    this.isNew = true;
   }
 
   @PreUpdate
@@ -87,5 +88,9 @@ public class GuardianRequest {
   public void updateFields(String request, Boolean isCheck) {
     this.request = request;
     this.isCheck = isCheck;
+  }
+
+  public void changeToOld() {
+    this.isNew = false;
   }
 }

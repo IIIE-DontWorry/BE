@@ -5,6 +5,7 @@ import com.iiie.server.convertor.EntityUpdater;
 import com.iiie.server.domain.CareReport;
 import com.iiie.server.domain.CareSchedule;
 import com.iiie.server.domain.Caregiver;
+import com.iiie.server.domain.Guardian;
 import com.iiie.server.domain.GuardianRequest;
 import com.iiie.server.domain.MealExcretion;
 import com.iiie.server.domain.MedicationCheck;
@@ -82,8 +83,15 @@ public class CareReportService {
             .excretionEveningTakenStatus(false)
             .build();
 
+    // 최근 요청 사항만 불러와 매핑해준다.
+    Guardian guardian = caregiver.getPatient().getGuardian();
+    List<GuardianRequest> newGuardianRequest =
+        guardianRequestRepository.findAllByIsNewTrueAndGuardianId(guardian.getId());
+
+    // CareReport 엔티티 생성
     CareReport careReport = CareReport.builder().caregiver(caregiver).specialNote("").build();
     careReport.setMealExcretion(mealExcretion);
+    careReport.addGuardianRequests(newGuardianRequest);
 
     CareReportResponse result =
         ConvertorDTO.toCareReportResponse(careReportRepository.save(careReport));
@@ -111,7 +119,8 @@ public class CareReportService {
 
     careReportRepository.deleteById(careReportId);
   }
-
+  // TODO 1 :  init하고 날짜 변경 시 -> 예외 뜬다.
+  // TODO 2 :  존재하지 않는 날짜 시 -> init으로 생성해준 뒤 + 수정까지.
   @Transactional
   public CareReportResponse patchCareReport(Long careReportId, CareReportPatchRequest request) {
     final LocalDate postedDate = LocalDate.parse(request.getPostedDate());
