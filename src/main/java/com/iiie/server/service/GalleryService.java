@@ -198,14 +198,11 @@ public class GalleryService {
   }
 
   @Transactional
-  public void updateGallery(GalleryDTO.UpdateGalleryRequest updateGalleryRequest) {
+  public void updateGallery(Long galleryId, GalleryDTO.UpdateGalleryRequest updateGalleryRequest) {
     Gallery gallery =
         galleryRepository
-            .findById(updateGalleryRequest.getGalleryId())
-            .orElseThrow(
-                () ->
-                    new NotFoundException(
-                        "gallery", updateGalleryRequest.getGalleryId(), "존재하지 않는 갤러리입니다."));
+            .findById(galleryId)
+            .orElseThrow(() -> new NotFoundException("gallery", galleryId, "존재하지 않는 갤러리입니다."));
 
     // 제목 수정
     if (updateGalleryRequest.getTitle() != null) {

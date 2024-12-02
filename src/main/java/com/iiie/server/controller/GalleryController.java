@@ -17,7 +17,7 @@ public class GalleryController {
     this.galleryService = galleryService;
   }
 
-  @GetMapping("/{caregiverId}/{guardianId}/{patientId}")
+  @GetMapping("/{patientId}")
   @Operation(summary = "갤러리 조회", description = "전체 사용자들은 환자의 갤러리를 조회합니다.")
   public SuccessResponse<List<GalleryDTO.GetGalleryResponse>> getGalleries(
       @PathVariable(name = "patientId") Long patientId) {
@@ -25,7 +25,7 @@ public class GalleryController {
     return new SuccessResponse<>("이미지 조회 완료", galleries);
   }
 
-  @GetMapping("/recent/{caregiverId}/{guardianId}/{patientId}")
+  @GetMapping("/recent/{patientId}")
   @Operation(summary = "최근 갤러리(이미지) 조회", description = "전체 사용자들은 환자의 최근 이미지 3개를 조회합니다.")
   public SuccessResponse<List<GalleryDTO.GetGalleryResponse>> getRecentGalleries(
       @PathVariable(name = "patientId") Long patientId) {
@@ -33,7 +33,7 @@ public class GalleryController {
     return new SuccessResponse<>("최근 갤러리 조회 완료", galleries);
   }
 
-  @PostMapping("/upload/{caregiverId}/{guardianId}/{patientId}")
+  @PostMapping("/upload/{patientId}")
   @Operation(summary = "갤러리 업로드", description = "선택한 이미지들을 새로운 갤러리에 업로드합니다.")
   public SuccessResponse<Void> uploadImages(
       @PathVariable(name = "patientId") Long patientId,
@@ -49,11 +49,12 @@ public class GalleryController {
     return new SuccessResponse<>("갤러리 삭제 완료", null);
   }
 
-  @PatchMapping("")
+  @PatchMapping("/{galleryId}")
   @Operation(summary = "갤러리 수정", description = "갤러리 제목 수정, 이미지 추가 및 삭제를 처리합니다.")
   public SuccessResponse<Void> updateGallery(
+      @PathVariable(name = "galleryId") Long galleryId,
       @RequestBody GalleryDTO.UpdateGalleryRequest updateGalleryRequest) {
-    galleryService.updateGallery(updateGalleryRequest);
+    galleryService.updateGallery(galleryId, updateGalleryRequest);
     return new SuccessResponse<>("갤러리 수정 완료", null);
   }
 }
