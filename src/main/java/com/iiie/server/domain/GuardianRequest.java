@@ -9,6 +9,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +39,25 @@ public class GuardianRequest {
 
   @Column(nullable = true)
   private Boolean isCheck;
+
+  @Column private Boolean isNew;
+
+  @Column private LocalDateTime createdAt;
+
+  @Column private LocalDateTime updatedAt;
+
+  @PrePersist
+  private void prePersist() {
+    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+    this.createdAt = nowInKorea.toLocalDateTime();
+    this.updatedAt = nowInKorea.toLocalDateTime();
+  }
+
+  @PreUpdate
+  private void preUpdate() {
+    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+    this.updatedAt = nowInKorea.toLocalDateTime();
+  }
 
   // ===연관관계===//
   @ManyToOne(fetch = FetchType.LAZY)
