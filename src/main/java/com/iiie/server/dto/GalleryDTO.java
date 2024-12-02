@@ -25,28 +25,28 @@ public class GalleryDTO {
     private List<ImageInfo> images;
   }
 
-  @Getter
-  @Setter
-  @Builder
-  public static class ImageInfo {
-    private Long imageId;
-    private String imageUrl;
-  }
+    @Getter
+    @Setter
+    public static class UploadGallery {
+        private String createdBy;
+        private List<String> images;
+        private String title;
+    }
 
-  @Getter
-  @Setter
-  public static class UploadGallery {
-    private String createdBy;
-    private List<String> images;
-    private String title;
-  }
+    @Getter
+    @Setter
+    public static class UpdateGalleryRequest {
+        private Long galleryId;
+        private String title;
+        private List<String> addImages;
+        private List<Long> deleteImageIds;
+    }
 
-  @Getter
-  @Setter
-  public static class UpdateGalleryRequest {
-    private Long galleryId;
-    private String title;
-    private List<MultipartFile> addImages;
-    private List<Long> deleteImageIds;
-  }
+    @Getter
+    @Setter
+    @Builder
+    public static class ImageInfo {
+        private Long imageId;
+        private String imageUrl;
+    }
 }
