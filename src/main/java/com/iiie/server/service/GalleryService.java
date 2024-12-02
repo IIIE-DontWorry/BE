@@ -46,7 +46,7 @@ public class GalleryService {
 
   @Transactional(readOnly = true)
   public List<GalleryDTO.GetGalleryResponse> getGalleries(
-      Long caregiverId, Long guardianId, Long patientId) {
+      Long patientId) {
     Patient patient =
         patientRepository
             .findById(patientId)
@@ -83,8 +83,7 @@ public class GalleryService {
     return responses;
   }
 
-  public List<GalleryDTO.GetGalleryResponse> getRecentGalleries(
-      Long caregiverId, Long guardianId, Long patientId) {
+  public List<GalleryDTO.GetGalleryResponse> getRecentGalleries(Long patientId) {
     Patient patient =
         patientRepository
             .findById(patientId)
@@ -128,7 +127,7 @@ public class GalleryService {
 
   @Transactional
   public void uploadImages(
-      Long caregiverId, Long guardianId, Long patientId, GalleryDTO.UploadGallery uploadGallery) {
+      Long patientId, GalleryDTO.UploadGallery uploadGallery) {
     Patient patient =
         patientRepository
             .findById(patientId)
