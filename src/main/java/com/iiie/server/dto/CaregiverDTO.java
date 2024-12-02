@@ -1,6 +1,5 @@
 package com.iiie.server.dto;
 
-import com.iiie.server.domain.CareerHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.UUID;
