@@ -2,7 +2,6 @@ package com.iiie.server.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
@@ -52,7 +51,9 @@ public class Caregiver {
 
   // ==초기 설정==//
   @PrePersist
-  public void prePersist() {this.mannerScore = 36.5;}
+  public void prePersist() {
+    this.mannerScore = 36.5;
+  }
 
   // ===연관관계 보조 메서드===//
   public void setPatient(Patient patient) {

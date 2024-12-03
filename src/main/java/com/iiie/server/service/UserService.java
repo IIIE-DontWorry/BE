@@ -88,7 +88,6 @@ public class UserService {
             .hospital(request.getHospital())
             .kakaoId(kakaoId)
             .mannerScore(DEFAULT_MANNER_SCORE)
-            .careerHistories(careerHistories)
             .build();
 
     guardian.setCaregiver(caregiver);

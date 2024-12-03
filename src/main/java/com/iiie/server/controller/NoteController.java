@@ -5,7 +5,6 @@ import com.iiie.server.service.NoteService;
 import com.iiie.server.utils.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
-
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -50,14 +49,16 @@ public class NoteController {
 
   @GetMapping("/score/guardian/{guardianId}")
   @Operation(summary = "보호자 매너 점수 조회", description = "보호자 점수를 조회합니다.")
-  public SuccessResponse<NoteDTO.MannerScore> getGuaridanScore(@PathVariable (name = "guardianId") Long guardianId) {
+  public SuccessResponse<NoteDTO.MannerScore> getGuaridanScore(
+      @PathVariable(name = "guardianId") Long guardianId) {
     NoteDTO.MannerScore mannerScore = noteService.getGuardianScore(guardianId);
     return new SuccessResponse<>("보호자 매너 점수 조회 완료", mannerScore);
   }
 
   @GetMapping("/score/caregiver/{caregiverId}")
   @Operation(summary = "간병인 매너 점수 조회", description = "간병인 점수를 조회합니다.")
-  public SuccessResponse<NoteDTO.MannerScore> getCaregiverScore(@PathVariable (name = "caregiverId") Long caregiverId) {
+  public SuccessResponse<NoteDTO.MannerScore> getCaregiverScore(
+      @PathVariable(name = "caregiverId") Long caregiverId) {
     NoteDTO.MannerScore mannerScore = noteService.getCaregiverScore(caregiverId);
     return new SuccessResponse<>("간병인 매너 점수 조회 완료", mannerScore);
   }

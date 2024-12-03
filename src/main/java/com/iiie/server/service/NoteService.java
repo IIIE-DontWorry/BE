@@ -27,8 +27,7 @@ public class NoteService {
       NoteRepository noteRepository,
       CaregiverRepository caregiverRepository,
       GuardianRepository guardianRepository,
-      NoteEvaluation noteEvaluation
-  ) {
+      NoteEvaluation noteEvaluation) {
     this.noteRepository = noteRepository;
     this.caregiverRepository = caregiverRepository;
     this.guardianRepository = guardianRepository;
@@ -105,17 +104,17 @@ public class NoteService {
               .build();
 
       Note savedNote = noteRepository.save(note);
-      
+
       // gpt 평가 요청
       String evaluation = noteEvaluation.evaluateContent(addRequest.getNoteContent());
 
-      switch(evaluation){
-        case "0":  // 부정적인 대화
+      switch (evaluation) {
+        case "0": // 부정적인 대화
           caregiver.updateMannerScore(-1.0);
           break;
-        case "1":  // 평범한 대화
+        case "1": // 평범한 대화
           break;
-        case "2":  // 긍정적인 대화
+        case "2": // 긍정적인 대화
           caregiver.updateMannerScore(1.0);
           break;
         default:
@@ -139,7 +138,6 @@ public class NoteService {
       }
       createdByType = "guardian";
 
-      
       // Note 엔티티 생성
       Note note =
           Note.builder()
@@ -150,17 +148,17 @@ public class NoteService {
               .build();
 
       Note savedNote = noteRepository.save(note);
-      
+
       // gpt 평가 요청
       String evaluation = noteEvaluation.evaluateContent(addRequest.getNoteContent());
 
-      switch(evaluation){
-        case "0":  // 부정적인 대화
+      switch (evaluation) {
+        case "0": // 부정적인 대화
           guardian.updateMannerScore(-1.0);
           break;
-        case "1":  // 평범한 대화
+        case "1": // 평범한 대화
           break;
-        case "2":  // 긍정적인 대화
+        case "2": // 긍정적인 대화
           guardian.updateMannerScore(1.0);
           break;
         default:
@@ -206,9 +204,9 @@ public class NoteService {
   @Transactional(readOnly = true)
   public NoteDTO.MannerScore getGuardianScore(Long guardianId) {
     Guardian guardian =
-            guardianRepository
-                    .findById(guardianId)
-                    .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자 입니다."));
+        guardianRepository
+            .findById(guardianId)
+            .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자 입니다."));
     NoteDTO.MannerScore mannerScore = new NoteDTO.MannerScore();
     mannerScore.setScore(guardian.getMannerScore());
 
@@ -219,9 +217,9 @@ public class NoteService {
   @Transactional(readOnly = true)
   public NoteDTO.MannerScore getCaregiverScore(Long caregiverId) {
     Caregiver caregiver =
-            caregiverRepository
-                    .findById(caregiverId)
-                    .orElseThrow(() -> new NotFoundException("caregiver", caregiverId, "존재하지 않는 간병인 입니다."));
+        caregiverRepository
+            .findById(caregiverId)
+            .orElseThrow(() -> new NotFoundException("caregiver", caregiverId, "존재하지 않는 간병인 입니다."));
     NoteDTO.MannerScore mannerScore = new NoteDTO.MannerScore();
     mannerScore.setScore(caregiver.getMannerScore());
 
