@@ -85,7 +85,11 @@ public class GuardianService {
             .MedicationInfos(ConvertorDTO.toMedicationInfos(patient.getMedicationChecks()))
             .build();
 
-    return InquiryGuardian.builder().guardianInfo(guardianInfo).patientInfo(patientInfo).build();
+    return InquiryGuardian.builder()
+        .guardianInfo(guardianInfo)
+        .patientInfo(patientInfo)
+        .uniqueCode(guardian.getUniqueCode())
+        .build();
   }
 
   @Transactional
