@@ -8,6 +8,7 @@ import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRepository;
 import com.iiie.server.repository.NoteRepository;
+import com.iiie.server.utils.NoteEvaluation;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -20,14 +21,18 @@ public class NoteService {
   private final NoteRepository noteRepository;
   private final CaregiverRepository caregiverRepository;
   private final GuardianRepository guardianRepository;
+  private final NoteEvaluation noteEvaluation;
 
   public NoteService(
       NoteRepository noteRepository,
       CaregiverRepository caregiverRepository,
-      GuardianRepository guardianRepository) {
+      GuardianRepository guardianRepository,
+      NoteEvaluation noteEvaluation
+  ) {
     this.noteRepository = noteRepository;
     this.caregiverRepository = caregiverRepository;
     this.guardianRepository = guardianRepository;
+    this.noteEvaluation = noteEvaluation;
   }
 
   @Transactional(readOnly = true)
@@ -100,7 +105,23 @@ public class NoteService {
               .build();
 
       Note savedNote = noteRepository.save(note);
-      return convertToNoteResponse(savedNote);
+      
+      // gpt 평가 요청
+      String evaluation = noteEvaluation.evaluateContent(addRequest.getNoteContent());
+
+      switch(evaluation){
+        case "0":  // 부정적인 대화
+          caregiver.updateMannerScore(-1.0);
+          break;
+        case "1":  // 평범한 대화
+          break;
+        case "2":  // 긍정적인 대화
+          caregiver.updateMannerScore(1.0);
+          break;
+        default:
+          throw new IllegalArgumentException("Unknown evaluation value: " + evaluation);
+      }
+      return convertToNoteResponseGPT(savedNote, evaluation);
     }
 
     // 보호자가 작성한 경우
@@ -118,6 +139,7 @@ public class NoteService {
       }
       createdByType = "guardian";
 
+      
       // Note 엔티티 생성
       Note note =
           Note.builder()
@@ -128,10 +150,37 @@ public class NoteService {
               .build();
 
       Note savedNote = noteRepository.save(note);
-      return convertToNoteResponse(savedNote);
+      
+      // gpt 평가 요청
+      String evaluation = noteEvaluation.evaluateContent(addRequest.getNoteContent());
+
+      switch(evaluation){
+        case "0":  // 부정적인 대화
+          guardian.updateMannerScore(-1.0);
+          break;
+        case "1":  // 평범한 대화
+          break;
+        case "2":  // 긍정적인 대화
+          guardian.updateMannerScore(1.0);
+          break;
+        default:
+          throw new IllegalArgumentException("Unknown evaluation value: " + evaluation);
+      }
+
+      return convertToNoteResponseGPT(savedNote, evaluation);
     } else {
       throw new IllegalArgumentException("간병인 ID 또는 보호자 ID 중 하나는 반드시 제공되어야 합니다.");
     }
+  }
+
+  private NoteDTO.NoteResponse convertToNoteResponseGPT(Note note, String evaluation) {
+    NoteDTO.NoteResponse response = new NoteDTO.NoteResponse();
+    response.setId(note.getId());
+    response.setCreatedBy(note.getCreatedBy());
+    response.setCreatedAt(note.getCreatedAt());
+    response.setNoteContent(note.getNoteContent());
+    response.setGptResponse(evaluation);
+    return response;
   }
 
   private NoteDTO.NoteResponse convertToNoteResponse(Note note) {
@@ -151,5 +200,31 @@ public class NoteService {
             .findById(noteId)
             .orElseThrow(() -> new NotFoundException("note", noteId, "존재하지 않는 쪽지입니다."));
     noteRepository.delete(note);
+  }
+
+  // 보호자 매너 점수 조회
+  @Transactional(readOnly = true)
+  public NoteDTO.MannerScore getGuardianScore(Long guardianId) {
+    Guardian guardian =
+            guardianRepository
+                    .findById(guardianId)
+                    .orElseThrow(() -> new NotFoundException("guardian", guardianId, "존재하지 않는 보호자 입니다."));
+    NoteDTO.MannerScore mannerScore = new NoteDTO.MannerScore();
+    mannerScore.setScore(guardian.getMannerScore());
+
+    return mannerScore;
+  }
+
+  // 간병인 매너 점수 조회
+  @Transactional(readOnly = true)
+  public NoteDTO.MannerScore getCaregiverScore(Long caregiverId) {
+    Caregiver caregiver =
+            caregiverRepository
+                    .findById(caregiverId)
+                    .orElseThrow(() -> new NotFoundException("caregiver", caregiverId, "존재하지 않는 간병인 입니다."));
+    NoteDTO.MannerScore mannerScore = new NoteDTO.MannerScore();
+    mannerScore.setScore(caregiver.getMannerScore());
+
+    return mannerScore;
   }
 }

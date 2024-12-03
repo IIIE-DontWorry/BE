@@ -5,11 +5,8 @@ import com.iiie.server.service.NoteService;
 import com.iiie.server.utils.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/notes")
@@ -49,5 +46,19 @@ public class NoteController {
   public SuccessResponse<Void> deleteNote(@RequestBody NoteDTO.DeleteNote deleteNote) {
     noteService.deleteNote(deleteNote.getId());
     return new SuccessResponse<>("쪽지 삭제 완료", null);
+  }
+
+  @GetMapping("/score/guardian/{guardianId}")
+  @Operation(summary = "보호자 매너 점수 조회", description = "보호자 점수를 조회합니다.")
+  public SuccessResponse<NoteDTO.MannerScore> getGuaridanScore(@PathVariable (name = "guardianId") Long guardianId) {
+    NoteDTO.MannerScore mannerScore = noteService.getGuardianScore(guardianId);
+    return new SuccessResponse<>("보호자 매너 점수 조회 완료", mannerScore);
+  }
+
+  @GetMapping("/score/caregiver/{caregiverId}")
+  @Operation(summary = "간병인 매너 점수 조회", description = "간병인 점수를 조회합니다.")
+  public SuccessResponse<NoteDTO.MannerScore> getCaregiverScore(@PathVariable (name = "caregiverId") Long caregiverId) {
+    NoteDTO.MannerScore mannerScore = noteService.getCaregiverScore(caregiverId);
+    return new SuccessResponse<>("간병인 매너 점수 조회 완료", mannerScore);
   }
 }
