@@ -1,15 +1,8 @@
 package com.iiie.server.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,7 +34,7 @@ public class Guardian {
   @Column(nullable = false)
   private Long kakaoId;
 
-  @ColumnDefault(value = "0.0")
+  @ColumnDefault(value = "36.5")
   private Double mannerScore;
 
   @Column(nullable = false)
@@ -61,6 +54,10 @@ public class Guardian {
   @JsonIgnore
   private List<GuardianRequest> guardianRequests = new ArrayList<>();
 
+  // ==초기 설정==//
+  @PrePersist
+  public void prePersist() {this.mannerScore = 36.5;}
+
   // ===연관관계 보조 메서드===//
   public void setPatient(Patient patient) {
     this.patient = patient;
@@ -68,5 +65,9 @@ public class Guardian {
 
   public void setCaregiver(Caregiver caregiver) {
     this.caregiver = caregiver;
+  }
+
+  public void updateMannerScore(Double delta) {
+    this.mannerScore += delta;
   }
 }

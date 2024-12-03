@@ -32,11 +32,18 @@ public class NoteDTO {
     private String createdBy;
     private LocalDateTime createdAt;
     private String noteContent;
+    private String gptResponse;
   }
 
   @Getter
   @Setter
   public static class DeleteNote {
     private Long id;
+  }
+
+  @Getter
+  @Setter
+  public static class MannerScore {
+    private Double score;
   }
 }

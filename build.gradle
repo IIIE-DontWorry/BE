@@ -61,6 +61,9 @@ dependencies {
 
     //aws s3 bucket
     implementation 'software.amazon.awssdk:s3:2.27.21'
+
+    //gpt api
+    implementation 'org.json:json:20230618'
 }
 
 tasks.named('test') {
