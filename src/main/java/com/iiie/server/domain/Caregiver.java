@@ -1,15 +1,8 @@
 package com.iiie.server.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
@@ -40,7 +33,7 @@ public class Caregiver {
   @Column(nullable = false)
   private Long kakaoId;
 
-  @ColumnDefault(value = "0.0")
+  @ColumnDefault(value = "36.5")
   private Double mannerScore;
 
   // 읽기 전용
@@ -57,6 +50,10 @@ public class Caregiver {
   @JsonIgnore
   private List<CareerHistory> careerHistories = new ArrayList<>();
 
+  // ==초기 설정==//
+  @PrePersist
+  public void prePersist() {this.mannerScore = 36.5;}
+
   // ===연관관계 보조 메서드===//
   public void setPatient(Patient patient) {
     this.patient = patient;
@@ -70,5 +67,10 @@ public class Caregiver {
       careerHistory.setCaregiver(this);
       this.careerHistories.add(careerHistory);
     }
+  }
+
+  // 매너 점수 수정 매서드
+  public void updateMannerScore(double delta) {
+    this.mannerScore += delta;
   }
 }
