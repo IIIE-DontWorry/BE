@@ -31,8 +31,9 @@ public class GuardianDTO {
   @Builder
   public static class InquiryGuardian {
 
-    public GuardianInfo guardianInfo;
-    public PatientInfo patientInfo;
+    private GuardianInfo guardianInfo;
+    private PatientInfo patientInfo;
+    private UUID uniqueCode;
 
     @Getter
     @Setter

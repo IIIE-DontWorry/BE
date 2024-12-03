@@ -12,9 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CareReportRepository extends JpaRepository<CareReport, Long> {
 
-  Optional<CareReport> findByCaregiverIdAndPostedDate(Long careGiverId, LocalDate today);
-
   Page<CareReport> findAllByCaregiverId(@NonNull Pageable pageable, Long careGiverId);
 
-  Optional<CareReport> findByIdAndPostedDate(Long careReportId, LocalDate postedDate);
+  Optional<CareReport> findByCaregiverIdAndPostedDate(Long caregiverId, LocalDate postedDate);
 }

@@ -9,6 +9,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,6 +43,26 @@ public class MedicationCheck {
 
   private Boolean eveningTakenStatus;
 
+  @Column private Boolean isNew;
+
+  @Column private LocalDateTime createdAt;
+
+  @Column private LocalDateTime updatedAt;
+
+  @PrePersist
+  private void prePersist() {
+    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+    this.createdAt = nowInKorea.toLocalDateTime();
+    this.updatedAt = nowInKorea.toLocalDateTime();
+    this.isNew = true;
+  }
+
+  @PreUpdate
+  private void preUpdate() {
+    ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+    this.updatedAt = nowInKorea.toLocalDateTime();
+  }
+
   // ===연관관계===//
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "patient_id")
@@ -60,10 +85,21 @@ public class MedicationCheck {
     }
   }
 
+  public void setPatient(Patient patient) {
+    if (!patient.getMedicationChecks().contains(this)) {
+      this.patient = patient;
+      patient.getMedicationChecks().add(this);
+    }
+  }
+
   public void updateFields(
       Boolean morningTakenStatus, Boolean afternoonTakenStatus, Boolean eveningTakenStatus) {
     this.morningTakenStatus = morningTakenStatus;
     this.afternoonTakenStatus = afternoonTakenStatus;
     this.eveningTakenStatus = eveningTakenStatus;
+  }
+
+  public void changeToOld() {
+    this.isNew = false;
   }
 }

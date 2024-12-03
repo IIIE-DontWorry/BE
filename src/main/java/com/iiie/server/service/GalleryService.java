@@ -45,8 +45,7 @@ public class GalleryService {
   }
 
   @Transactional(readOnly = true)
-  public List<GalleryDTO.GetGalleryResponse> getGalleries(
-      Long caregiverId, Long guardianId, Long patientId) {
+  public List<GalleryDTO.GetGalleryResponse> getGalleries(Long patientId) {
     Patient patient =
         patientRepository
             .findById(patientId)
@@ -83,8 +82,7 @@ public class GalleryService {
     return responses;
   }
 
-  public List<GalleryDTO.GetGalleryResponse> getRecentGalleries(
-      Long caregiverId, Long guardianId, Long patientId) {
+  public List<GalleryDTO.GetGalleryResponse> getRecentGalleries(Long patientId) {
     Patient patient =
         patientRepository
             .findById(patientId)
@@ -127,8 +125,7 @@ public class GalleryService {
   }
 
   @Transactional
-  public void uploadImages(
-      Long caregiverId, Long guardianId, Long patientId, GalleryDTO.UploadGallery uploadGallery) {
+  public void uploadImages(Long patientId, GalleryDTO.UploadGallery uploadGallery) {
     Patient patient =
         patientRepository
             .findById(patientId)
@@ -201,14 +198,11 @@ public class GalleryService {
   }
 
   @Transactional
-  public void updateGallery(GalleryDTO.UpdateGalleryRequest updateGalleryRequest) {
+  public void updateGallery(Long galleryId, GalleryDTO.UpdateGalleryRequest updateGalleryRequest) {
     Gallery gallery =
         galleryRepository
-            .findById(updateGalleryRequest.getGalleryId())
-            .orElseThrow(
-                () ->
-                    new NotFoundException(
-                        "gallery", updateGalleryRequest.getGalleryId(), "존재하지 않는 갤러리입니다."));
+            .findById(galleryId)
+            .orElseThrow(() -> new NotFoundException("gallery", galleryId, "존재하지 않는 갤러리입니다."));
 
     // 제목 수정
     if (updateGalleryRequest.getTitle() != null) {

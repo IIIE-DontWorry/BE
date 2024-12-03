@@ -6,17 +6,15 @@ import com.iiie.server.domain.Caregiver;
 import com.iiie.server.domain.Guardian;
 import com.iiie.server.domain.Patient;
 import com.iiie.server.dto.CaregiverDTO;
-import com.iiie.server.dto.CaregiverDTO.InquiryCaregiver;
 import com.iiie.server.dto.GuardianDTO.InquiryGuardian;
 import com.iiie.server.dto.GuardianDTO.InquiryGuardian.GuardianInfo;
 import com.iiie.server.dto.GuardianDTO.InquiryGuardian.PatientInfo;
 import com.iiie.server.exception.NotFoundException;
 import com.iiie.server.repository.CaregiverRepository;
 import com.iiie.server.repository.GuardianRepository;
+import com.iiie.server.repository.PatientRepository;
 import java.util.List;
 import java.util.UUID;
-
-import com.iiie.server.repository.PatientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +27,9 @@ public class CaregiverService {
   private final PatientRepository patientRepository;
 
   public CaregiverService(
-          GuardianRepository guardianRepository, CaregiverRepository caregiverRepository, PatientRepository patientRepository) {
+      GuardianRepository guardianRepository,
+      CaregiverRepository caregiverRepository,
+      PatientRepository patientRepository) {
     this.guardianRepository = guardianRepository;
     this.caregiverRepository = caregiverRepository;
     this.patientRepository = patientRepository;
@@ -77,8 +77,10 @@ public class CaregiverService {
     Caregiver caregiver =
         caregiverRepository
             .findById(caregiverId)
-            .orElseThrow(() -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
-    Patient patient = patientRepository
+            .orElseThrow(
+                () -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
+    Patient patient =
+        patientRepository
             .findById(patientId)
             .orElseThrow(() -> new NotFoundException("patient: ", patientId, "존재하지 않는 환자입니다."));
 
@@ -87,9 +89,8 @@ public class CaregiverService {
     updatedCaregiver.setCaregiverName(caregiver.getName());
     updatedCaregiver.setPhone(caregiver.getPhone());
     updatedCaregiver.setHospital(caregiver.getHospital());
-    updatedCaregiver.setCarrierHistory(caregiver.getCareerHistories().stream()
-            .map(CareerHistory::getDescription)
-            .toList());
+    updatedCaregiver.setCarrierHistory(
+        caregiver.getCareerHistories().stream().map(CareerHistory::getDescription).toList());
     updatedCaregiver.setPatientName(patient.getName());
     updatedCaregiver.setAge(patient.getAge());
     updatedCaregiver.setDiseaseName(patient.getDiseaseName());
@@ -100,12 +101,16 @@ public class CaregiverService {
   }
 
   @Transactional
-  public CaregiverDTO.UpdateCaregiver updateInfo(Long caregiverId, Long patientId, CaregiverDTO.UpdateCaregiver updateCaregiver) {
-    Caregiver caregiver = caregiverRepository
+  public CaregiverDTO.UpdateCaregiver updateInfo(
+      Long caregiverId, Long patientId, CaregiverDTO.UpdateCaregiver updateCaregiver) {
+    Caregiver caregiver =
+        caregiverRepository
             .findById(caregiverId)
-            .orElseThrow(() -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
+            .orElseThrow(
+                () -> new NotFoundException("caregiver: ", caregiverId, "존재하지 않는 간병인입니다."));
 
-    Patient patient = patientRepository
+    Patient patient =
+        patientRepository
             .findById(patientId)
             .orElseThrow(() -> new NotFoundException("patient: ", patientId, "존재하지 않는 환자입니다."));
 
@@ -141,9 +146,8 @@ public class CaregiverService {
     updatedCaregiver.setCaregiverName(caregiver.getName());
     updatedCaregiver.setPhone(caregiver.getPhone());
     updatedCaregiver.setHospital(caregiver.getHospital());
-    updatedCaregiver.setCarrierHistory(caregiver.getCareerHistories().stream()
-            .map(CareerHistory::getDescription)
-            .toList());
+    updatedCaregiver.setCarrierHistory(
+        caregiver.getCareerHistories().stream().map(CareerHistory::getDescription).toList());
     updatedCaregiver.setPatientName(patient.getName());
     updatedCaregiver.setAge(patient.getAge());
     updatedCaregiver.setDiseaseName(patient.getDiseaseName());

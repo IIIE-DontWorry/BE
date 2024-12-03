@@ -5,6 +5,7 @@ import com.iiie.server.convertor.EntityUpdater;
 import com.iiie.server.domain.CareReport;
 import com.iiie.server.domain.CareSchedule;
 import com.iiie.server.domain.Caregiver;
+import com.iiie.server.domain.Guardian;
 import com.iiie.server.domain.GuardianRequest;
 import com.iiie.server.domain.MealExcretion;
 import com.iiie.server.domain.MedicationCheck;
@@ -68,6 +69,16 @@ public class CareReportService {
     Optional<CareReport> existingReport =
         careReportRepository.findByCaregiverIdAndPostedDate(careGiverId, today);
 
+    // 최근 요청 사항만 불러와 매핑해준다.
+    Guardian guardian = caregiver.getPatient().getGuardian();
+    List<GuardianRequest> newGuardianRequest =
+        guardianRequestRepository.findAllByIsNewTrueAndGuardianId(guardian.getId());
+
+    // 최근 약물 정보만 불러와 매핑해준다.
+    List<MedicationCheck> newMedicationChecks =
+        medicationCheckRepository.findAllByIsNewTrueAndPatientId(caregiver.getPatient().getId());
+
+    // 기존 건 그대로 불러와야함
     if (existingReport.isPresent()) {
       return ConvertorDTO.toCareReportResponse(existingReport.get());
     }
@@ -82,9 +93,11 @@ public class CareReportService {
             .excretionEveningTakenStatus(false)
             .build();
 
+    // CareReport 엔티티 생성
     CareReport careReport = CareReport.builder().caregiver(caregiver).specialNote("").build();
     careReport.setMealExcretion(mealExcretion);
-
+    careReport.addGuardianRequests(newGuardianRequest);
+    careReport.addMedicationChecks(newMedicationChecks);
     CareReportResponse result =
         ConvertorDTO.toCareReportResponse(careReportRepository.save(careReport));
 
@@ -114,11 +127,27 @@ public class CareReportService {
 
   @Transactional
   public CareReportResponse patchCareReport(Long careReportId, CareReportPatchRequest request) {
+
     final LocalDate postedDate = LocalDate.parse(request.getPostedDate());
-    CareReport careReport =
-        careReportRepository
-            .findByIdAndPostedDate(careReportId, postedDate)
-            .orElseThrow(() -> new NotFoundException("care_report", null, "존재하지 않는 간병 보고서입니다."));
+    Optional<CareReport> optionalCareReport =
+        careReportRepository.findByCaregiverIdAndPostedDate(careReportId, postedDate);
+
+    // 간병인과 날짜로 조회가 안되고, 간병인도 조회가 안되면 예외
+    // 간병인과 날짜로 조회가 안되고, 간병인은 조회가 되면 init()으로 새로 생성 해주기
+    if (optionalCareReport.isEmpty()) {
+      careGiverRepository
+          .findById(careReportId)
+          .ifPresentOrElse(
+              caregiver -> initCareReport(caregiver.getId()),
+              () -> {
+                throw new NotFoundException("caregiver", careReportId, "존재하지 않는 간병인 입니다.");
+              });
+
+      optionalCareReport =
+          careReportRepository.findByCaregiverIdAndPostedDate(careReportId, LocalDate.now());
+    }
+
+    CareReport careReport = optionalCareReport.get();
 
     if (!request.getPatchCareScheduleRequests().isEmpty()) {
       // 시간에 따른 일정 엔티티 업데이트

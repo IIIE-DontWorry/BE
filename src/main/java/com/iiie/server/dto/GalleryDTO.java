@@ -35,7 +35,6 @@ public class GalleryDTO {
   @Getter
   @Setter
   public static class UpdateGalleryRequest {
-    private Long galleryId;
     private String title;
     private List<String> addImages;
     private List<Long> deleteImageIds;

@@ -46,6 +46,7 @@ public class UserService {
   @Transactional
   public UserDTO.Response caregiverValidation(
       HashMap<String, Object> userInfo, CreationCaregiver request) {
+    final String CAREGIVER_ROLE = "간병인";
     Long kakaoId = (Long) userInfo.get("id");
     Optional<Caregiver> optionalCaregiver = careGiverRepository.findByKakaoId(kakaoId);
 
@@ -53,10 +54,12 @@ public class UserService {
       Caregiver newCaregiver = registerCaregiver(kakaoId, request);
 
       return UserDTO.Response.builder()
+          .role(CAREGIVER_ROLE)
           .accessToken(jwtTokenProvider.createAccessToken(newCaregiver.getId()))
           .build();
     } else {
       return UserDTO.Response.builder()
+          .role(CAREGIVER_ROLE)
           .accessToken(jwtTokenProvider.createAccessToken(optionalCaregiver.get().getId()))
           .build();
     }
@@ -85,7 +88,6 @@ public class UserService {
             .hospital(request.getHospital())
             .kakaoId(kakaoId)
             .mannerScore(DEFAULT_MANNER_SCORE)
-            .careerHistories(careerHistories)
             .build();
 
     guardian.setCaregiver(caregiver);
@@ -97,6 +99,8 @@ public class UserService {
 
   @Transactional
   public Response guardianValidation(HashMap<String, Object> userInfo, CreationRequest request) {
+    final String GUARDIAN_ROLE = "보호자";
+
     Long kakaoId = (Long) userInfo.get("id");
     Optional<Guardian> optionalGuardian = guardianRepository.findByKakaoId(kakaoId);
 
@@ -104,10 +108,12 @@ public class UserService {
       Guardian newGuardian = registerGuardian(kakaoId, request);
 
       return UserDTO.Response.builder()
+          .role(GUARDIAN_ROLE)
           .accessToken(jwtTokenProvider.createAccessToken(newGuardian.getId()))
           .build();
     } else {
       return UserDTO.Response.builder()
+          .role(GUARDIAN_ROLE)
           .accessToken(jwtTokenProvider.createAccessToken(optionalGuardian.get().getId()))
           .build();
     }

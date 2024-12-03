@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,10 +38,10 @@ public class UserController {
     this.kakaoService = kakaoService;
     this.userService = userService;
   }
-
+  // TODO : 로그인 및 회원가입 시 AccessToken외 **보호자, 간병인, 지인 구별 문자열도 같이 넘겨주기**
   @PostMapping("/guardians/login")
   @Operation(summary = "보호자 회원가입 OR 로그인", description = "(환자 정보와 함께)이미 존재하면 로그인. 처음이면 회원가입을 진행한다.")
-  public SuccessResponse<?> guardianLogin(
+  public SuccessResponse<Response> guardianLogin(
       @RequestParam("kakaoAccessToken") String kakaoAccessToken,
       @RequestBody GuardianAndPatientDTO.CreationRequest request)
       throws IOException {
@@ -62,7 +61,7 @@ public class UserController {
       summary = "간병인 회원가입 OR 로그인",
       description = "(보호자 인증 코드를 가지고)이미 존재하면 로그인. 처음이면 회원가입을 진행한다.")
   public SuccessResponse<?> caregiverLogin(
-      @RequestHeader("kakaoAccessToken") String kakaoAccessToken,
+      @RequestParam("kakaoAccessToken") String kakaoAccessToken,
       @RequestBody CaregiverDTO.CreationCaregiver request)
       throws IOException {
 

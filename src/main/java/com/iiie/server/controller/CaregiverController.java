@@ -34,9 +34,7 @@ public class CaregiverController {
   @GetMapping("/myPage/{caregiverId}/{patientId}")
   @Operation(summary = "마이 페이지 조회", description = "간병인은 자신의 기본 정보를 확인할 수 있다.")
   public SuccessResponse<CaregiverDTO.UpdateCaregiver> inquiryInfo(
-      @PathVariable Long caregiverId,
-      @PathVariable Long patientId
-      ) {
+      @PathVariable Long caregiverId, @PathVariable Long patientId) {
     CaregiverDTO.UpdateCaregiver inquiryInfo = caregiverService.inquiryInfo(caregiverId, patientId);
     return new SuccessResponse<>("간병인 마이 페이지 조회 완료", inquiryInfo);
   }

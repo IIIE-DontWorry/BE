@@ -3,9 +3,9 @@ package com.iiie.server.utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
 
 @Service
 public class NoteEvaluation {
@@ -51,4 +51,5 @@ public class NoteEvaluation {
             throw new RuntimeException("GPT API 호출 실패: " + response.getStatusCodeValue());
         }
     }
+  }
 }
