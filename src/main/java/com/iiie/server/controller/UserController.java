@@ -62,7 +62,7 @@ public class UserController {
       summary = "간병인 회원가입 OR 로그인",
       description = "(보호자 인증 코드를 가지고)이미 존재하면 로그인. 처음이면 회원가입을 진행한다.")
   public SuccessResponse<?> caregiverLogin(
-      @RequestHeader("kakaoAccessToken") String kakaoAccessToken,
+      @RequestParam("kakaoAccessToken") String kakaoAccessToken,
       @RequestBody CaregiverDTO.CreationCaregiver request)
       throws IOException {
 
