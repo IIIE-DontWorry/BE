@@ -5,6 +5,11 @@
 - **Database** : MySQL
 - **Deploy**: AWS (EC2, S3, RDS), Nginx
 
+## 📜API 명세서 (Swagger)
+※ Run한 뒤
+http://localhost:8080/api/swagger
+접속
+
 ## 🛠 프로젝트 아키텍쳐
 추후 업로드
 
